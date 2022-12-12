@@ -164,9 +164,9 @@ fun Ui() {
             .background(colorResource(id = R.color.white)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
-            OutlinedTextField(value = diameter.value,
+            OutlinedTextField(value = thicknessCenter.value,
                 textStyle = TextStyle(fontSize = 15.sp),
-                onValueChange = { it -> diameter.value = it },
+                onValueChange = { it -> thicknessCenter.value = it },
                 label = { Text(text = "Толщина по центру") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
@@ -179,9 +179,9 @@ fun Ui() {
             .background(colorResource(id = R.color.white)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
-            OutlinedTextField(value = diameter.value,
+            OutlinedTextField(value = thicknessEdge.value,
                 textStyle = TextStyle(fontSize = 15.sp),
-                onValueChange = { it -> diameter.value = it },
+                onValueChange = { it -> thicknessEdge.value = it },
                 label = { Text(text = "Толщина по краю") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
