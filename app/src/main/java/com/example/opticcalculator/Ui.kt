@@ -2,6 +2,7 @@ package com.example.opticcalculator
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
@@ -31,8 +32,8 @@ fun Ui() {
     val basicCurved = remember{mutableStateOf("")}
     val nominalThickness = remember{mutableStateOf("")}
     val diameter = remember{mutableStateOf("")}
-    val thicknessCenter = remember{mutableStateOf("...")}
-    val thicknessEdge = remember{mutableStateOf("...")}
+    val thicknessCenter = remember{mutableStateOf("Толщина по центру ...")}
+    val thicknessEdge = remember{mutableStateOf("Толщина по краю ...")}
 
     Column(modifier = Modifier
         .fillMaxSize(1f)
@@ -40,7 +41,7 @@ fun Ui() {
         //Рассчетные параметры заголовок
         Row(modifier = Modifier
             .fillMaxWidth(1f)
-            .padding(top = 40.dp)
+            .padding(top = 20.dp)
             .background(colorResource(id = R.color.white)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
@@ -54,24 +55,26 @@ fun Ui() {
             .background(colorResource(id = R.color.white)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
-            OutlinedTextField(value = refraction.value,
+            OutlinedTextField(
+                value = refraction.value,
                 textStyle = TextStyle(fontSize=15.sp),
-                onValueChange = {it -> refraction.value = it},
+                onValueChange = { refraction.value = it},
                 label = { Text ( text = "Рефракция" ) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
-                placeholder = { Text(text = "Введите значение") })
+                placeholder = { Text(text = "Введите значение") }
+            )
         }
         //Рассчетный диаметр
         Row(modifier = Modifier
             .fillMaxWidth(1f)
-            .padding(top = 10.dp)
+            .padding(top = 0.dp)
             .background(colorResource(id = R.color.white)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(value = calculatedDiameter.value,
                 textStyle = TextStyle(fontSize = 15.sp),
-                onValueChange = { it -> calculatedDiameter.value = it },
+                onValueChange = { calculatedDiameter.value = it },
                 label = { Text(text = "Рассчетный диаметр") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
@@ -80,7 +83,7 @@ fun Ui() {
         //Параметры заготовки заголовок
         Row(modifier = Modifier
             .fillMaxWidth(1f)
-            .padding(top = 40.dp)
+            .padding(top = 20.dp)
             .background(colorResource(id = R.color.white)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
@@ -96,7 +99,7 @@ fun Ui() {
             verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(value = index.value,
                 textStyle = TextStyle(fontSize = 15.sp),
-                onValueChange = { it -> index.value = it },
+                onValueChange = { index.value = it },
                 label = { Text(text = "Индекс") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
@@ -105,13 +108,13 @@ fun Ui() {
         //БК
         Row(modifier = Modifier
             .fillMaxWidth(1f)
-            .padding(top = 10.dp)
+            .padding(top = 0.dp)
             .background(colorResource(id = R.color.white)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(value = basicCurved.value,
                 textStyle = TextStyle(fontSize = 15.sp),
-                onValueChange = { it -> basicCurved.value = it },
+                onValueChange = { basicCurved.value = it },
                 label = { Text(text = "Базовая кривизна") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
@@ -120,13 +123,13 @@ fun Ui() {
         //Номинальная толщина
         Row(modifier = Modifier
             .fillMaxWidth(1f)
-            .padding(top = 10.dp)
+            .padding(top = 0.dp)
             .background(colorResource(id = R.color.white)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(value = nominalThickness.value,
                 textStyle = TextStyle(fontSize = 15.sp),
-                onValueChange = { it -> nominalThickness.value = it },
+                onValueChange = { nominalThickness.value = it },
                 label = { Text(text = "Номинальная толщина") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
@@ -135,13 +138,13 @@ fun Ui() {
         //Диаметр
         Row(modifier = Modifier
             .fillMaxWidth(1f)
-            .padding(top = 10.dp)
+            .padding(top = 0.dp)
             .background(colorResource(id = R.color.white)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(value = diameter.value,
                 textStyle = TextStyle(fontSize = 15.sp),
-                onValueChange = { it -> diameter.value = it },
+                onValueChange = { diameter.value = it },
                 label = { Text(text = "Диаметр") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
@@ -154,8 +157,17 @@ fun Ui() {
             .background(colorResource(id = R.color.white)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically){
-            Button(onClick = { /*TODO*/ }) {
-
+            Button(onClick = {
+                thicknessCenter.value = calculateCT(refraction.value.toDouble()
+                    , calculatedDiameter.value.toDouble()
+                    , index.value.toDouble(), basicCurved.value.toDouble()
+                    , nominalThickness.value.toDouble(), diameter.value.toDouble()).toString()
+                thicknessEdge.value = calculateET(refraction.value.toDouble()
+                    , calculatedDiameter.value.toDouble()
+                    , index.value.toDouble(), basicCurved.value.toDouble()
+                    , nominalThickness.value.toDouble(), diameter.value.toDouble()).toString()
+                             }, shape = RoundedCornerShape(100)) {
+                Text(text = "Результат")
             }
         }
         //Толщина по центру
@@ -165,13 +177,7 @@ fun Ui() {
             .background(colorResource(id = R.color.white)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
-            OutlinedTextField(value = thicknessCenter.value,
-                textStyle = TextStyle(fontSize = 15.sp),
-                onValueChange = { it -> thicknessCenter.value = it },
-                label = { Text(text = "Толщина по центру") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                singleLine = true,
-                readOnly = true)
+            Text(text = thicknessCenter.value, fontSize = 20.sp)
         }
         //Толщина по краю
         Row(modifier = Modifier
@@ -180,13 +186,7 @@ fun Ui() {
             .background(colorResource(id = R.color.white)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
-            OutlinedTextField(value = thicknessEdge.value,
-                textStyle = TextStyle(fontSize = 15.sp),
-                onValueChange = { it -> thicknessEdge.value = it },
-                label = { Text(text = "Толщина по краю") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                singleLine = true,
-                readOnly = true)
+            Text(text = thicknessEdge.value, fontSize = 20.sp)
         }
 
 
