@@ -161,7 +161,7 @@ fun Ui() {
                 thicknessCenter.value = calculateCT(refraction.value.toDouble()
                     , calculatedDiameter.value.toDouble()
                     , index.value.toDouble(), basicCurved.value.toDouble()
-                    , nominalThickness.value.toDouble(), diameter.value.toDouble()).toString()
+                    , nominalThickness.value.toDouble()).toString()
                 thicknessEdge.value = calculateET(refraction.value.toDouble()
                     , calculatedDiameter.value.toDouble()
                     , index.value.toDouble(), basicCurved.value.toDouble()

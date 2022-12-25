@@ -1,16 +1,19 @@
 package com.example.opticcalculator
 
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import kotlin.math.pow
+import kotlin.math.roundToInt
 
-fun calculateCT(refraction:Double, calculatedDiameter:Double,
+fun calculateCT(refraction:Double,
               index:Double, basicCurved:Double,
               nominalThickness:Double, diameter:Double): Double {
+    val df = DecimalFormat("#.##")
+    df.roundingMode = RoundingMode.DOWN
     val firstBasicCurved_mm = (index-1)*1000/basicCurved
     val secondBasicCurved_mm = (index-1)*1000/(basicCurved-refraction)
-    val firstCurvature = firstBasicCurved_mm - (firstBasicCurved_mm.pow(2)-0.25*diameter.pow(2)).pow(1/2)
-    val secondCurvature = secondBasicCurved_mm - (secondBasicCurved_mm.pow(2)-0.25*diameter.pow(2)).pow(1/2)
-    val altFirstCurvature = firstBasicCurved_mm - (firstBasicCurved_mm.pow(2)-0.25*calculatedDiameter.pow(2)).pow(1/2)
-    val altSecondCurvature = secondBasicCurved_mm - (secondBasicCurved_mm.pow(2)-0.25*calculatedDiameter.pow(2)).pow(1/2)
+    val firstCurvature = firstBasicCurved_mm - (df.format(firstBasicCurved_mm.pow(2)).toDouble()-(df.format(0.25*diameter.pow(2)).toDouble())).pow(1/2)
+    val secondCurvature = secondBasicCurved_mm - (df.format(secondBasicCurved_mm.pow(2)).toDouble()-(df.format(0.25*diameter.pow(2)).toDouble())).pow(1/2)
 
     if (refraction >= 0){
         val thicknessCenter = nominalThickness + firstCurvature - secondCurvature
@@ -24,12 +27,14 @@ fun calculateCT(refraction:Double, calculatedDiameter:Double,
 fun calculateET(refraction:Double, calculatedDiameter:Double,
                 index:Double, basicCurved:Double,
                 nominalThickness:Double, diameter:Double): Double {
+    val df = DecimalFormat("#.##")
+    df.roundingMode = RoundingMode.DOWN
     val firstBasicCurved_mm = (index-1)*1000/basicCurved
     val secondBasicCurved_mm = (index-1)*1000/(basicCurved-refraction)
-    val firstCurvature = firstBasicCurved_mm - (firstBasicCurved_mm.pow(2)-0.25*diameter.pow(2)).pow(1/2)
-    val secondCurvature = secondBasicCurved_mm - (secondBasicCurved_mm.pow(2)-0.25*diameter.pow(2)).pow(1/2)
-    val altFirstCurvature = firstBasicCurved_mm - (firstBasicCurved_mm.pow(2)-0.25*calculatedDiameter.pow(2)).pow(1/2)
-    val altSecondCurvature = secondBasicCurved_mm - (secondBasicCurved_mm.pow(2)-0.25*calculatedDiameter.pow(2)).pow(1/2)
+    val firstCurvature = firstBasicCurved_mm - (df.format(firstBasicCurved_mm.pow(2)).toDouble()-(df.format(0.25*diameter.pow(2)).toDouble())).pow(1/2)
+    val secondCurvature = secondBasicCurved_mm - (df.format(secondBasicCurved_mm.pow(2)).toDouble()-(df.format(0.25*diameter.pow(2)).toDouble())).pow(1/2)
+    val altFirstCurvature = firstBasicCurved_mm - (df.format(firstBasicCurved_mm.pow(2)).toDouble()-(df.format(0.25*calculatedDiameter.pow(2)).toDouble())).pow(1/2)
+    val altSecondCurvature = secondBasicCurved_mm - (df.format(secondBasicCurved_mm.pow(2)).toDouble()-(df.format(0.25*calculatedDiameter.pow(2)).toDouble())).pow(1/2)
 
     if (refraction >= 0){
         val thicknessCenter = nominalThickness + firstCurvature - secondCurvature
