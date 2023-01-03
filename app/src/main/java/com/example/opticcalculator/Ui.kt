@@ -7,8 +7,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -17,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,10 +33,16 @@ fun Ui() {
     val diameter = remember{mutableStateOf("")}
     val thicknessCenter = remember{mutableStateOf("Толщина по центру ...")}
     val thicknessEdge = remember{mutableStateOf("Толщина по краю ...")}
+    val argsForCalc = mapOf<String, MutableState<String>>(
+        "refraction" to refraction, "index" to index,
+        "basicCurved" to basicCurved,
+        "nominalThickness" to nominalThickness,
+        "diameter" to diameter, "calculatedDiameter" to calculatedDiameter,
+        "thicknessCenter" to thicknessCenter, "thicknessEdge" to thicknessEdge)
 
     Column(modifier = Modifier
         .fillMaxSize(1f)
-        .background(Color.Black)) {
+        .background(Color.White)) {
         //Рассчетные параметры заголовок
         Row(modifier = Modifier
             .fillMaxWidth(1f)
@@ -158,15 +163,9 @@ fun Ui() {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically){
             Button(onClick = {
-                thicknessCenter.value = calculateCT(refraction.value.toDouble()
-                    , calculatedDiameter.value.toDouble()
-                    , index.value.toDouble(), basicCurved.value.toDouble()
-                    , nominalThickness.value.toDouble()).toString()
-                thicknessEdge.value = calculateET(refraction.value.toDouble()
-                    , calculatedDiameter.value.toDouble()
-                    , index.value.toDouble(), basicCurved.value.toDouble()
-                    , nominalThickness.value.toDouble(), diameter.value.toDouble()).toString()
-                             }, shape = RoundedCornerShape(100)) {
+                calculateET(argsForCalc) },
+                shape = RoundedCornerShape(100),
+                enabled = refraction.value.isNotEmpty()) {
                 Text(text = "Результат")
             }
         }

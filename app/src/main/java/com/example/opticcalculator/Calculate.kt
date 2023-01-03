@@ -1,48 +1,48 @@
 package com.example.opticcalculator
 
+import android.util.Log
+import androidx.compose.runtime.MutableState
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import kotlin.math.pow
-import kotlin.math.roundToInt
 
-fun calculateCT(refraction:Double,
-              index:Double, basicCurved:Double,
-              nominalThickness:Double, diameter:Double): Double {
+fun calculateET(args:Map<String, MutableState<String>>) {
     val df = DecimalFormat("#.##")
-    df.roundingMode = RoundingMode.DOWN
-    val firstBasicCurved_mm = (index-1)*1000/basicCurved
-    val secondBasicCurved_mm = (index-1)*1000/(basicCurved-refraction)
-    val firstCurvature = firstBasicCurved_mm - (df.format(firstBasicCurved_mm.pow(2)).toDouble()-(df.format(0.25*diameter.pow(2)).toDouble())).pow(1/2)
-    val secondCurvature = secondBasicCurved_mm - (df.format(secondBasicCurved_mm.pow(2)).toDouble()-(df.format(0.25*diameter.pow(2)).toDouble())).pow(1/2)
+    df.roundingMode = RoundingMode.UP
+
+    val index = args["index"]!!.value.toDouble()
+    val basicCurved = args["basicCurved"]!!.value.toDouble()
+    val refraction = args["refraction"]!!.value.toDouble()
+    val diameter = args["diameter"]!!.value.toDouble()
+    val nominalThickness = args["nominalThickness"]!!.value.toDouble()
+    val calculatedDiameter = args["calculatedDiameter"]!!.value.toDouble()
+    val thicknessCenter = args["thicknessCenter"]!!
+    val thicknessEdge = args["thicknessEdge"]!!
+
+    val fBC = df.format((index-1)*1000/basicCurved).toDouble()
+    val sBC = df.format((index-1)*1000/(basicCurved-refraction)).toDouble()
+
+
+    val firstCurvature =
+        fBC - df.format(((df.format(fBC.pow(2)).toDouble())-(df.format(0.25*(diameter.pow(2))).toDouble())).pow(1/2.toDouble())).toDouble()
+
+    val secondCurvature =
+        sBC - df.format(((df.format(sBC.pow(2)).toDouble())-(df.format(0.25*(diameter.pow(2))).toDouble())).pow(1/2.toDouble())).toDouble()
+
+    val altFirstCurvature =
+        fBC - df.format(((df.format(fBC.pow(2)).toDouble())-(df.format(0.25*(calculatedDiameter.pow(2))).toDouble())).pow(1/2.toDouble())).toDouble()
+    val altSecondCurvature =
+        sBC - df.format(((df.format(sBC.pow(2)).toDouble())-(df.format(0.25*(calculatedDiameter.pow(2))).toDouble())).pow(1/2.toDouble())).toDouble()
 
     if (refraction >= 0){
-        val thicknessCenter = nominalThickness + firstCurvature - secondCurvature
-        return thicknessCenter
-    }
-    else{
-        val thicknessCenter = nominalThickness
-        return thicknessCenter
-    }
-}
-fun calculateET(refraction:Double, calculatedDiameter:Double,
-                index:Double, basicCurved:Double,
-                nominalThickness:Double, diameter:Double): Double {
-    val df = DecimalFormat("#.##")
-    df.roundingMode = RoundingMode.DOWN
-    val firstBasicCurved_mm = (index-1)*1000/basicCurved
-    val secondBasicCurved_mm = (index-1)*1000/(basicCurved-refraction)
-    val firstCurvature = firstBasicCurved_mm - (df.format(firstBasicCurved_mm.pow(2)).toDouble()-(df.format(0.25*diameter.pow(2)).toDouble())).pow(1/2)
-    val secondCurvature = secondBasicCurved_mm - (df.format(secondBasicCurved_mm.pow(2)).toDouble()-(df.format(0.25*diameter.pow(2)).toDouble())).pow(1/2)
-    val altFirstCurvature = firstBasicCurved_mm - (df.format(firstBasicCurved_mm.pow(2)).toDouble()-(df.format(0.25*calculatedDiameter.pow(2)).toDouble())).pow(1/2)
-    val altSecondCurvature = secondBasicCurved_mm - (df.format(secondBasicCurved_mm.pow(2)).toDouble()-(df.format(0.25*calculatedDiameter.pow(2)).toDouble())).pow(1/2)
+        thicknessCenter.value = "Толщина по центру = " + df.format(nominalThickness + firstCurvature - secondCurvature)
+        thicknessEdge.value = "Толщина по краю = " + df.format(nominalThickness + firstCurvature - secondCurvature - altFirstCurvature + altSecondCurvature)
 
-    if (refraction >= 0){
-        val thicknessCenter = nominalThickness + firstCurvature - secondCurvature
-        val thicknessEdge = thicknessCenter + altFirstCurvature - altSecondCurvature
-        return thicknessEdge
     }
     else{
-        val thicknessEdge = nominalThickness - firstCurvature + secondCurvature
-        return thicknessEdge
+        thicknessCenter.value = "Толщина по центру = " + df.format(nominalThickness)
+        thicknessEdge.value = "Толщина по краю = " + df.format(nominalThickness - firstCurvature + secondCurvature)
+
+
     }
 }
