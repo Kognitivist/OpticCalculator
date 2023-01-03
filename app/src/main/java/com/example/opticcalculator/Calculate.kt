@@ -1,12 +1,11 @@
 package com.example.opticcalculator
 
-import android.util.Log
 import androidx.compose.runtime.MutableState
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import kotlin.math.pow
 
-fun calculateET(args:Map<String, MutableState<String>>) {
+fun calculate(args:Map<String, MutableState<String>>) {
     val df = DecimalFormat("#.##")
     df.roundingMode = RoundingMode.UP
 

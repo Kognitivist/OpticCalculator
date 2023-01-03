@@ -1,12 +1,15 @@
 package com.example.opticcalculator
 
+import android.graphics.drawable.Icon
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -15,7 +18,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -25,6 +31,8 @@ import androidx.compose.ui.unit.sp
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun Ui() {
+    val checkedState = remember { mutableStateOf(false) }
+
     val refraction = remember{mutableStateOf("")}
     val calculatedDiameter = remember{mutableStateOf("")}
     val index = remember{mutableStateOf("")}
@@ -50,7 +58,7 @@ fun Ui() {
             .background(colorResource(id = R.color.white)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
-            Text(text = "Рассчетные параметры")
+            Text(text = "Рассчетные параметры", fontWeight = FontWeight.Bold)
         }
         //Рассчетные параметры значения:
         //Рефракция
@@ -62,13 +70,13 @@ fun Ui() {
             verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
                 value = refraction.value,
-                textStyle = TextStyle(fontSize=15.sp),
+                textStyle = TextStyle(fontSize=13.sp),
                 onValueChange = { refraction.value = it},
                 label = { Text ( text = "Рефракция" ) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
-                placeholder = { Text(text = "Введите значение") }
-            )
+                placeholder = { Text(text = "Введите значение") },
+                isError = refraction.value.isEmpty())
         }
         //Рассчетный диаметр
         Row(modifier = Modifier
@@ -78,12 +86,13 @@ fun Ui() {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(value = calculatedDiameter.value,
-                textStyle = TextStyle(fontSize = 15.sp),
+                textStyle = TextStyle(fontSize = 13.sp),
                 onValueChange = { calculatedDiameter.value = it },
                 label = { Text(text = "Рассчетный диаметр") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
-                placeholder = { Text(text = "Введите значение") })
+                placeholder = { Text(text = "Введите значение") },
+                isError = calculatedDiameter.value.isEmpty())
         }
         //Параметры заготовки заголовок
         Row(modifier = Modifier
@@ -92,7 +101,12 @@ fun Ui() {
             .background(colorResource(id = R.color.white)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
-            Text(text = "Параметры заготовки")
+            Text(text = "Параметры заготовки", fontWeight = FontWeight.Bold)
+            Switch(checked = checkedState.value, onCheckedChange = { checkedState.value = it })
+            Icon(
+                painter = painterResource(id = R.drawable.ic_baseline_question_mark_24),
+                contentDescription = "",
+                modifier = Modifier.clickable {})
         }
         //Параметры заготовки значения:
         //Индекс
@@ -103,27 +117,60 @@ fun Ui() {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(value = index.value,
-                textStyle = TextStyle(fontSize = 15.sp),
+                textStyle = TextStyle(fontSize = 13.sp),
                 onValueChange = { index.value = it },
                 label = { Text(text = "Индекс") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
-                placeholder = { Text(text = "Введите значение") })
+                placeholder = { Text(text = "Введите значение") },
+                isError = index.value.isEmpty())
+        }
+        //Диаметр
+        Row(modifier = Modifier
+            .fillMaxWidth(1f)
+            .padding(top = 0.dp)
+            .background(colorResource(id = R.color.white)),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically) {
+            OutlinedTextField(value = diameter.value,
+                textStyle = TextStyle(fontSize = 13.sp),
+                onValueChange = { diameter.value = it },
+                label = { Text(text = "Диаметр") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true,
+                placeholder = { Text(text = "Введите значение") },
+                isError = diameter.value.isEmpty())
         }
         //БК
         Row(modifier = Modifier
             .fillMaxWidth(1f)
             .padding(top = 0.dp)
             .background(colorResource(id = R.color.white)),
-            horizontalArrangement = Arrangement.Center,
+            horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically) {
-            OutlinedTextField(value = basicCurved.value,
-                textStyle = TextStyle(fontSize = 15.sp),
+            OutlinedTextField(modifier = Modifier
+                .width(350.dp)
+                .padding(start = 65.dp, end = 20.dp),
+                value = basicCurved.value,
+                textStyle = TextStyle(fontSize = 13.sp),
                 onValueChange = { basicCurved.value = it },
                 label = { Text(text = "Базовая кривизна") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
-                placeholder = { Text(text = "Введите значение") })
+                placeholder = { Text(text = "Введите значение") },
+                isError = basicCurved.value.isEmpty())
+            Row(modifier = Modifier
+                .padding(end = 15.dp)
+                .background(colorResource(id = R.color.white)),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically) {
+                Switch(checked = checkedState.value, onCheckedChange = { checkedState.value = it })
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_baseline_question_mark_24),
+                    contentDescription = "",
+                    modifier = Modifier.clickable {})
+            }
+
         }
         //Номинальная толщина
         Row(modifier = Modifier
@@ -133,27 +180,13 @@ fun Ui() {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(value = nominalThickness.value,
-                textStyle = TextStyle(fontSize = 15.sp),
+                textStyle = TextStyle(fontSize = 13.sp),
                 onValueChange = { nominalThickness.value = it },
                 label = { Text(text = "Номинальная толщина") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
-                placeholder = { Text(text = "Введите значение") })
-        }
-        //Диаметр
-        Row(modifier = Modifier
-            .fillMaxWidth(1f)
-            .padding(top = 0.dp)
-            .background(colorResource(id = R.color.white)),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically) {
-            OutlinedTextField(value = diameter.value,
-                textStyle = TextStyle(fontSize = 15.sp),
-                onValueChange = { diameter.value = it },
-                label = { Text(text = "Диаметр") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                singleLine = true,
-                placeholder = { Text(text = "Введите значение") })
+                placeholder = { Text(text = "Введите значение") },
+                isError = nominalThickness.value.isEmpty())
         }
         //Кнопка "результат"
         Row(modifier = Modifier
@@ -163,9 +196,11 @@ fun Ui() {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically){
             Button(onClick = {
-                calculateET(argsForCalc) },
+                calculate(argsForCalc) },
                 shape = RoundedCornerShape(100),
-                enabled = refraction.value.isNotEmpty()) {
+                enabled = refraction.value.isNotEmpty() && calculatedDiameter.value.isNotEmpty()
+                        && index.value.isNotEmpty() && basicCurved.value.isNotEmpty()
+                        && nominalThickness.value.isNotEmpty() && diameter.value.isNotEmpty()) {
                 Text(text = "Результат")
             }
         }
