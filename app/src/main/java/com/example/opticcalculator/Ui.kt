@@ -39,8 +39,10 @@ fun Ui() {
     val basicCurved = remember{mutableStateOf("")}
     val nominalThickness = remember{mutableStateOf("")}
     val diameter = remember{mutableStateOf("")}
+
     val thicknessCenter = remember{mutableStateOf("Толщина по центру ...")}
     val thicknessEdge = remember{mutableStateOf("Толщина по краю ...")}
+
     val argsForCalc = mapOf<String, MutableState<String>>(
         "refraction" to refraction, "index" to index,
         "basicCurved" to basicCurved,
@@ -48,9 +50,23 @@ fun Ui() {
         "diameter" to diameter, "calculatedDiameter" to calculatedDiameter,
         "thicknessCenter" to thicknessCenter, "thicknessEdge" to thicknessEdge)
 
+    val isErrorRefraction: Boolean = refraction.value.isEmpty()
+    val isErrorCalculatedDiameter: Boolean = calculatedDiameter.value.isEmpty() ||
+            format(calculatedDiameter.value).toDouble() <= 0
+    val isErrorIndex: Boolean = index.value.isEmpty() ||
+            format(index.value).toDouble() <= 1 ||
+            format(index.value).toDouble() > 2
+    val isErrorBasicCurved: Boolean = basicCurved.value.isEmpty() ||
+            format(basicCurved.value).toDouble() <= format(refraction.value).toDouble() ||
+            format(basicCurved.value).toDouble() <= 0
+    val isErrorNominalThickness: Boolean = nominalThickness.value.isEmpty() ||
+            format(nominalThickness.value).toDouble() <= 0
+    val isErrorDiameter: Boolean = diameter.value.isEmpty() ||
+            format(diameter.value).toDouble() <= 0
 
 
-    Column(modifier = Modifier
+
+        Column(modifier = Modifier
         .fillMaxSize(1f)
         .background(Color.White)) {
         //Рассчетные параметры заголовок
@@ -73,12 +89,12 @@ fun Ui() {
             OutlinedTextField(
                 value = refraction.value,
                 textStyle = TextStyle(fontSize=13.sp),
-                onValueChange = { refraction.value = it},
+                onValueChange = { refraction.value = format(it)},
                 label = { Text ( text = "Рефракция" ) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
                 placeholder = { Text(text = "Введите значение") },
-                isError = refraction.value.isEmpty())
+                isError = isErrorRefraction)
         }
         //Рассчетный диаметр
         Row(modifier = Modifier
@@ -94,7 +110,7 @@ fun Ui() {
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
                 placeholder = { Text(text = "Введите значение") },
-                isError = calculatedDiameter.value.isEmpty())
+                isError = isErrorCalculatedDiameter)
         }
         //Параметры заготовки заголовок
         Row(modifier = Modifier
@@ -120,12 +136,12 @@ fun Ui() {
             verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(value = index.value,
                 textStyle = TextStyle(fontSize = 13.sp),
-                onValueChange = { index.value = it },
+                onValueChange = { index.value = format(it) },
                 label = { Text(text = "Индекс") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
                 placeholder = { Text(text = "Введите значение") },
-                isError = index.value.isEmpty())
+                isError = isErrorIndex)
         }
         //Диаметр
         Row(modifier = Modifier
@@ -137,12 +153,13 @@ fun Ui() {
             OutlinedTextField(
                 value = diameter.value,
                 textStyle = TextStyle(fontSize = 13.sp),
-                onValueChange = { diameter.value = it },
+                onValueChange = { diameter.value = format(it) },
                 label = { Text(text = "Диаметр") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
                 placeholder = { Text(text = "Введите значение") },
-                isError = diameter.value.isEmpty())
+                isError = isErrorDiameter
+            )
         }
         //БК
         Row(modifier = Modifier
@@ -154,12 +171,12 @@ fun Ui() {
             OutlinedTextField(
                 value = basicCurved.value,
                 textStyle = TextStyle(fontSize = 13.sp),
-                onValueChange = { basicCurved.value = it },
+                onValueChange = { basicCurved.value = format(it) },
                 label = { Text(text = "Базовая кривизна") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
                 placeholder = { Text(text = "Введите значение") },
-                isError = basicCurved.value.isEmpty())
+                isError = isErrorBasicCurved)
             /*Switch(checked = checkedState.value, onCheckedChange = { checkedState.value = it })*/
             /*Icon(
                 painter = painterResource(id = R.drawable.ic_baseline_question_mark_24),
@@ -176,12 +193,12 @@ fun Ui() {
             verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(value = nominalThickness.value,
                 textStyle = TextStyle(fontSize = 13.sp),
-                onValueChange = { nominalThickness.value = it },
+                onValueChange = { nominalThickness.value = format(it)},
                 label = { Text(text = "Номинальная толщина") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
                 placeholder = { Text(text = "Введите значение") },
-                isError = nominalThickness.value.isEmpty())
+                isError = isErrorNominalThickness)
         }
         //Кнопка "результат"
         Row(modifier = Modifier
@@ -193,9 +210,9 @@ fun Ui() {
             Button(onClick = {
                 calculate(argsForCalc) },
                 shape = RoundedCornerShape(100),
-                enabled = refraction.value.isNotEmpty() && calculatedDiameter.value.isNotEmpty()
-                        && index.value.isNotEmpty() && basicCurved.value.isNotEmpty()
-                        && nominalThickness.value.isNotEmpty() && diameter.value.isNotEmpty()) {
+                enabled = !isErrorBasicCurved && !isErrorDiameter && !isErrorIndex
+                        && !isErrorCalculatedDiameter && !isErrorRefraction
+                        && !isErrorNominalThickness) {
                 Text(text = "Результат")
             }
         }

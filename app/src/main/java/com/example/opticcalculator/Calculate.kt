@@ -12,14 +12,30 @@ fun calculate(args:Map<String, MutableState<String>>) {
     val index = args["index"]!!.value.toDouble()
     val basicCurved = args["basicCurved"]!!.value.toDouble()
     val refraction = args["refraction"]!!.value.toDouble()
-    val diameter = args["diameter"]!!.value.toDouble()
+    var diameter = args["diameter"]!!.value.toDouble()
     val nominalThickness = args["nominalThickness"]!!.value.toDouble()
-    val calculatedDiameter = args["calculatedDiameter"]!!.value.toDouble()
+    var calculatedDiameter = args["calculatedDiameter"]!!.value.toDouble()
     val thicknessCenter = args["thicknessCenter"]!!
     val thicknessEdge = args["thicknessEdge"]!!
 
     val fBC = df.format((index-1)*1000/basicCurved).toDouble()
     val sBC = df.format((index-1)*1000/(basicCurved-refraction)).toDouble()
+
+    if (fBC < diameter/2 || sBC < diameter/2){
+        if (fBC >= sBC){
+            args["diameter"]!!.value = (sBC*2).toString()
+            diameter = sBC*2}
+        else {args["diameter"]!!.value = (fBC*2).toString()
+            diameter = fBC*2}
+    }
+    if (fBC < calculatedDiameter/2 || sBC < calculatedDiameter/2){
+        if (fBC >= sBC){
+            args["calculatedDiameter"]!!.value = (sBC*2).toString()
+            calculatedDiameter = sBC*2}
+        else {args["calculatedDiameter"]!!.value = (fBC*2).toString()
+            calculatedDiameter = fBC*2}
+    }
+
 
 
     val firstCurvature =
