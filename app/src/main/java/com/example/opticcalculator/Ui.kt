@@ -2,7 +2,6 @@ package com.example.opticcalculator
 
 import android.graphics.drawable.Icon
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -26,6 +25,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.opticcalculator.ui.theme.format
 
 
 @Preview(showBackground = true, showSystemUi = true)
@@ -47,6 +47,8 @@ fun Ui() {
         "nominalThickness" to nominalThickness,
         "diameter" to diameter, "calculatedDiameter" to calculatedDiameter,
         "thicknessCenter" to thicknessCenter, "thicknessEdge" to thicknessEdge)
+
+
 
     Column(modifier = Modifier
         .fillMaxSize(1f)
@@ -87,7 +89,7 @@ fun Ui() {
             verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(value = calculatedDiameter.value,
                 textStyle = TextStyle(fontSize = 13.sp),
-                onValueChange = { calculatedDiameter.value = it },
+                onValueChange = { calculatedDiameter.value = format(it)},
                 label = { Text(text = "Рассчетный диаметр") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
@@ -102,11 +104,11 @@ fun Ui() {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
             Text(text = "Параметры заготовки", fontWeight = FontWeight.Bold)
-            Switch(checked = checkedState.value, onCheckedChange = { checkedState.value = it })
+            /*Switch(checked = checkedState.value, onCheckedChange = { checkedState.value = it })
             Icon(
                 painter = painterResource(id = R.drawable.ic_baseline_question_mark_24),
                 contentDescription = "",
-                modifier = Modifier.clickable {})
+                modifier = Modifier.clickable {})*/
         }
         //Параметры заготовки значения:
         //Индекс
@@ -132,7 +134,8 @@ fun Ui() {
             .background(colorResource(id = R.color.white)),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically) {
-            OutlinedTextField(value = diameter.value,
+            OutlinedTextField(
+                value = diameter.value,
                 textStyle = TextStyle(fontSize = 13.sp),
                 onValueChange = { diameter.value = it },
                 label = { Text(text = "Диаметр") },
@@ -148,9 +151,7 @@ fun Ui() {
             .background(colorResource(id = R.color.white)),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically) {
-            OutlinedTextField(modifier = Modifier
-                .width(350.dp)
-                .padding(start = 65.dp, end = 20.dp),
+            OutlinedTextField(
                 value = basicCurved.value,
                 textStyle = TextStyle(fontSize = 13.sp),
                 onValueChange = { basicCurved.value = it },
@@ -159,17 +160,11 @@ fun Ui() {
                 singleLine = true,
                 placeholder = { Text(text = "Введите значение") },
                 isError = basicCurved.value.isEmpty())
-            Row(modifier = Modifier
-                .padding(end = 15.dp)
-                .background(colorResource(id = R.color.white)),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically) {
-                Switch(checked = checkedState.value, onCheckedChange = { checkedState.value = it })
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_baseline_question_mark_24),
-                    contentDescription = "",
-                    modifier = Modifier.clickable {})
-            }
+            /*Switch(checked = checkedState.value, onCheckedChange = { checkedState.value = it })*/
+            /*Icon(
+                painter = painterResource(id = R.drawable.ic_baseline_question_mark_24),
+                contentDescription = "",
+                modifier = Modifier.clickable {})*/
 
         }
         //Номинальная толщина
@@ -207,7 +202,7 @@ fun Ui() {
         //Толщина по центру
         Row(modifier = Modifier
             .fillMaxWidth(1f)
-            .padding(top = 10.dp)
+            .padding(top = 30.dp)
             .background(colorResource(id = R.color.white)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
@@ -216,7 +211,7 @@ fun Ui() {
         //Толщина по краю
         Row(modifier = Modifier
             .fillMaxWidth(1f)
-            .padding(top = 10.dp)
+            .padding(top = 20.dp)
             .background(colorResource(id = R.color.white)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {

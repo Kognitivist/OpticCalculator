@@ -34,13 +34,13 @@ fun calculate(args:Map<String, MutableState<String>>) {
         sBC - df.format(((df.format(sBC.pow(2)).toDouble())-(df.format(0.25*(calculatedDiameter.pow(2))).toDouble())).pow(1/2.toDouble())).toDouble()
 
     if (refraction >= 0){
-        thicknessCenter.value = "Толщина по центру = " + df.format(nominalThickness + firstCurvature - secondCurvature)
-        thicknessEdge.value = "Толщина по краю = " + df.format(nominalThickness + firstCurvature - secondCurvature - altFirstCurvature + altSecondCurvature)
+        thicknessCenter.value = "Толщина по центру = " + df.format(nominalThickness + firstCurvature - secondCurvature) +" мм"
+        thicknessEdge.value = "Толщина по краю = " + df.format(nominalThickness + firstCurvature - secondCurvature - altFirstCurvature + altSecondCurvature) +" мм"
 
     }
     else{
-        thicknessCenter.value = "Толщина по центру = " + df.format(nominalThickness)
-        thicknessEdge.value = "Толщина по краю = " + df.format(nominalThickness - firstCurvature + secondCurvature)
+        thicknessCenter.value = "Толщина по центру = " + df.format(nominalThickness) +" мм"
+        thicknessEdge.value = "Толщина по краю = " + df.format(nominalThickness - firstCurvature + secondCurvature) +" мм"
 
 
     }
