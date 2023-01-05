@@ -13,10 +13,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.opticcalculator.ui.theme.OpticCalculatorTheme
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Ui()
+            Ui(this)
 
         }
     }

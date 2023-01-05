@@ -1,9 +1,11 @@
 package com.example.opticcalculator
 
+import android.content.Context
 import android.graphics.drawable.Icon
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -15,22 +17,27 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.opticcalculator.ui.theme.format
+import com.example.opticcalculator.ui.theme.*
 
 
-@Preview(showBackground = true, showSystemUi = true)
+
 @Composable
-fun Ui() {
+fun Ui(context: Context) {
+    val focusManager = LocalFocusManager.current
     val checkedState = remember { mutableStateOf(false) }
 
     val refraction = remember{mutableStateOf("")}
@@ -40,8 +47,8 @@ fun Ui() {
     val nominalThickness = remember{mutableStateOf("")}
     val diameter = remember{mutableStateOf("")}
 
-    val thicknessCenter = remember{mutableStateOf("Толщина по центру ...")}
-    val thicknessEdge = remember{mutableStateOf("Толщина по краю ...")}
+    val thicknessCenter = remember{mutableStateOf("")}
+    val thicknessEdge = remember{mutableStateOf("")}
 
     val argsForCalc = mapOf<String, MutableState<String>>(
         "refraction" to refraction, "index" to index,
@@ -51,22 +58,15 @@ fun Ui() {
         "thicknessCenter" to thicknessCenter, "thicknessEdge" to thicknessEdge)
 
     val isErrorRefraction: Boolean = refraction.value.isEmpty()
-    val isErrorCalculatedDiameter: Boolean = calculatedDiameter.value.isEmpty() ||
-            format(calculatedDiameter.value).toDouble() <= 0
-    val isErrorIndex: Boolean = index.value.isEmpty() ||
-            format(index.value).toDouble() <= 1 ||
-            format(index.value).toDouble() > 2
-    val isErrorBasicCurved: Boolean = basicCurved.value.isEmpty() ||
-            format(basicCurved.value).toDouble() <= format(refraction.value).toDouble() ||
-            format(basicCurved.value).toDouble() <= 0
-    val isErrorNominalThickness: Boolean = nominalThickness.value.isEmpty() ||
-            format(nominalThickness.value).toDouble() <= 0
-    val isErrorDiameter: Boolean = diameter.value.isEmpty() ||
-            format(diameter.value).toDouble() <= 0
+    val isErrorCalculatedDiameter: Boolean = isErrorCalculatedDiameter(calculatedDiameter.value)
+    val isErrorIndex: Boolean = isErrorIndex(index.value)
+    val isErrorBasicCurved: Boolean = isErrorBasicCurved(basicCurved.value, refraction.value)
+    val isErrorNominalThickness: Boolean = isErrorNominalThickness(nominalThickness.value)
+    val isErrorDiameter: Boolean = isErrorDiameter(diameter.value, calculatedDiameter.value)
 
 
 
-        Column(modifier = Modifier
+    Column(modifier = Modifier
         .fillMaxSize(1f)
         .background(Color.White)) {
         //Рассчетные параметры заголовок
@@ -90,8 +90,17 @@ fun Ui() {
                 value = refraction.value,
                 textStyle = TextStyle(fontSize=13.sp),
                 onValueChange = { refraction.value = format(it)},
+                modifier = Modifier.onFocusChanged {
+                    isNumber(refraction)
+                },
                 label = { Text ( text = "Рефракция" ) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(
+                    onNext = {
+                    focusManager.moveFocus(FocusDirection.Down)
+                }),
                 singleLine = true,
                 placeholder = { Text(text = "Введите значение") },
                 isError = isErrorRefraction)
@@ -106,8 +115,13 @@ fun Ui() {
             OutlinedTextField(value = calculatedDiameter.value,
                 textStyle = TextStyle(fontSize = 13.sp),
                 onValueChange = { calculatedDiameter.value = format(it)},
+                modifier = Modifier.onFocusChanged {
+                    isNumber(calculatedDiameter)
+                },
                 label = { Text(text = "Рассчетный диаметр") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next),
                 singleLine = true,
                 placeholder = { Text(text = "Введите значение") },
                 isError = isErrorCalculatedDiameter)
@@ -137,8 +151,13 @@ fun Ui() {
             OutlinedTextField(value = index.value,
                 textStyle = TextStyle(fontSize = 13.sp),
                 onValueChange = { index.value = format(it) },
+                modifier = Modifier.onFocusChanged {
+                    isNumber(index)
+                },
                 label = { Text(text = "Индекс") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next),
                 singleLine = true,
                 placeholder = { Text(text = "Введите значение") },
                 isError = isErrorIndex)
@@ -154,8 +173,13 @@ fun Ui() {
                 value = diameter.value,
                 textStyle = TextStyle(fontSize = 13.sp),
                 onValueChange = { diameter.value = format(it) },
+                modifier = Modifier.onFocusChanged {
+                    isNumber(diameter)
+                },
                 label = { Text(text = "Диаметр") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next),
                 singleLine = true,
                 placeholder = { Text(text = "Введите значение") },
                 isError = isErrorDiameter
@@ -172,8 +196,13 @@ fun Ui() {
                 value = basicCurved.value,
                 textStyle = TextStyle(fontSize = 13.sp),
                 onValueChange = { basicCurved.value = format(it) },
+                modifier = Modifier.onFocusChanged {
+                    isNumber(basicCurved)
+                },
                 label = { Text(text = "Базовая кривизна") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next),
                 singleLine = true,
                 placeholder = { Text(text = "Введите значение") },
                 isError = isErrorBasicCurved)
@@ -194,8 +223,13 @@ fun Ui() {
             OutlinedTextField(value = nominalThickness.value,
                 textStyle = TextStyle(fontSize = 13.sp),
                 onValueChange = { nominalThickness.value = format(it)},
+                modifier = Modifier.onFocusChanged {
+                    isNumber(nominalThickness)
+                },
                 label = { Text(text = "Номинальная толщина") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done),
                 singleLine = true,
                 placeholder = { Text(text = "Введите значение") },
                 isError = isErrorNominalThickness)
@@ -208,7 +242,7 @@ fun Ui() {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically){
             Button(onClick = {
-                calculate(argsForCalc) },
+                calculate(argsForCalc, context) },
                 shape = RoundedCornerShape(100),
                 enabled = !isErrorBasicCurved && !isErrorDiameter && !isErrorIndex
                         && !isErrorCalculatedDiameter && !isErrorRefraction
@@ -234,8 +268,5 @@ fun Ui() {
             verticalAlignment = Alignment.CenterVertically) {
             Text(text = thicknessEdge.value, fontSize = 20.sp)
         }
-
-
-
     }
 }
