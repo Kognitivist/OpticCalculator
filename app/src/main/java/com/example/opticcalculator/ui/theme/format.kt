@@ -1,5 +1,6 @@
 package com.example.opticcalculator.ui.theme
 
+import android.content.Context
 import androidx.compose.runtime.MutableState
 import kotlin.math.roundToInt
 
@@ -65,3 +66,5 @@ fun isErrorDiameter(value1: String, value2:String):Boolean{
         true
     }
 }
+fun convertPixelsToDp(context: Context, pixels: Float) =
+    pixels / context.resources.displayMetrics.density

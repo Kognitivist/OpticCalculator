@@ -3,10 +3,11 @@ package com.example.opticcalculator
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.runtime.MutableState
+import androidx.compose.ui.platform.LocalContext
 import com.example.opticcalculator.ui.theme.round
 import kotlin.math.pow
 
-fun calculate(args:Map<String, MutableState<String>>, context: Context) {
+fun calculate(context: Context, args:Map<String, MutableState<String>>) {
 
 
 

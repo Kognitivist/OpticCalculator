@@ -1,16 +1,15 @@
-package com.example.opticcalculator
+package com.example.opticcalculator.screens
 
+import android.app.Application
 import android.content.Context
-import android.graphics.drawable.Icon
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.Button
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -20,35 +19,40 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.example.opticcalculator.MainViewModel
+import com.example.opticcalculator.MainViewModelFactory
+import com.example.opticcalculator.calculate
+import com.example.opticcalculator.navigation.NavRoute
 import com.example.opticcalculator.ui.theme.*
 
-
-
 @Composable
-fun Ui(context: Context) {
+fun StartScreen(navController: NavHostController, viewModel: MainViewModel) {
+    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val checkedState = remember { mutableStateOf(false) }
 
-    val refraction = remember{mutableStateOf("")}
-    val calculatedDiameter = remember{mutableStateOf("")}
-    val index = remember{mutableStateOf("")}
-    val basicCurved = remember{mutableStateOf("")}
-    val nominalThickness = remember{mutableStateOf("")}
-    val diameter = remember{mutableStateOf("")}
+    val refraction = remember{ mutableStateOf("") }
+    val calculatedDiameter = remember{ mutableStateOf("") }
+    val index = remember{ mutableStateOf("") }
+    val basicCurved = remember{ mutableStateOf("") }
+    val nominalThickness = remember{ mutableStateOf("") }
+    val diameter = remember{ mutableStateOf("") }
 
-    val thicknessCenter = remember{mutableStateOf("")}
-    val thicknessEdge = remember{mutableStateOf("")}
+    val thicknessCenter = remember{ mutableStateOf("") }
+    val thicknessEdge = remember{ mutableStateOf("") }
 
     val argsForCalc = mapOf<String, MutableState<String>>(
         "refraction" to refraction, "index" to index,
@@ -73,7 +77,7 @@ fun Ui(context: Context) {
         Row(modifier = Modifier
             .fillMaxWidth(1f)
             .padding(top = 20.dp)
-            .background(colorResource(id = R.color.white)),
+            .background(color = Color.White),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
             Text(text = "Рассчетные параметры", fontWeight = FontWeight.Bold)
@@ -83,13 +87,13 @@ fun Ui(context: Context) {
         Row(modifier = Modifier
             .fillMaxWidth(1f)
             .padding(top = 10.dp)
-            .background(colorResource(id = R.color.white)),
+            .background(color = Color.White),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
                 value = refraction.value,
                 textStyle = TextStyle(fontSize=13.sp),
-                onValueChange = { refraction.value = format(it)},
+                onValueChange = { refraction.value = format(it) },
                 modifier = Modifier.onFocusChanged {
                     isNumber(refraction)
                 },
@@ -99,8 +103,8 @@ fun Ui(context: Context) {
                     imeAction = ImeAction.Next),
                 keyboardActions = KeyboardActions(
                     onNext = {
-                    focusManager.moveFocus(FocusDirection.Down)
-                }),
+                        focusManager.moveFocus(FocusDirection.Down)
+                    }),
                 singleLine = true,
                 placeholder = { Text(text = "Введите значение") },
                 isError = isErrorRefraction)
@@ -109,12 +113,12 @@ fun Ui(context: Context) {
         Row(modifier = Modifier
             .fillMaxWidth(1f)
             .padding(top = 0.dp)
-            .background(colorResource(id = R.color.white)),
+            .background(color = Color.White),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(value = calculatedDiameter.value,
                 textStyle = TextStyle(fontSize = 13.sp),
-                onValueChange = { calculatedDiameter.value = format(it)},
+                onValueChange = { calculatedDiameter.value = format(it) },
                 modifier = Modifier.onFocusChanged {
                     isNumber(calculatedDiameter)
                 },
@@ -130,22 +134,18 @@ fun Ui(context: Context) {
         Row(modifier = Modifier
             .fillMaxWidth(1f)
             .padding(top = 20.dp)
-            .background(colorResource(id = R.color.white)),
+            .background(color = Color.White),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
             Text(text = "Параметры заготовки", fontWeight = FontWeight.Bold)
-            /*Switch(checked = checkedState.value, onCheckedChange = { checkedState.value = it })
-            Icon(
-                painter = painterResource(id = R.drawable.ic_baseline_question_mark_24),
-                contentDescription = "",
-                modifier = Modifier.clickable {})*/
+
         }
         //Параметры заготовки значения:
         //Индекс
         Row(modifier = Modifier
             .fillMaxWidth(1f)
             .padding(top = 10.dp)
-            .background(colorResource(id = R.color.white)),
+            .background(color = Color.White),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(value = index.value,
@@ -166,7 +166,7 @@ fun Ui(context: Context) {
         Row(modifier = Modifier
             .fillMaxWidth(1f)
             .padding(top = 0.dp)
-            .background(colorResource(id = R.color.white)),
+            .background(color = Color.White),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
@@ -189,7 +189,7 @@ fun Ui(context: Context) {
         Row(modifier = Modifier
             .fillMaxWidth(1f)
             .padding(top = 0.dp)
-            .background(colorResource(id = R.color.white)),
+            .background(color = Color.White),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
@@ -206,23 +206,18 @@ fun Ui(context: Context) {
                 singleLine = true,
                 placeholder = { Text(text = "Введите значение") },
                 isError = isErrorBasicCurved)
-            /*Switch(checked = checkedState.value, onCheckedChange = { checkedState.value = it })*/
-            /*Icon(
-                painter = painterResource(id = R.drawable.ic_baseline_question_mark_24),
-                contentDescription = "",
-                modifier = Modifier.clickable {})*/
 
         }
         //Номинальная толщина
         Row(modifier = Modifier
             .fillMaxWidth(1f)
             .padding(top = 0.dp)
-            .background(colorResource(id = R.color.white)),
+            .background(color = Color.White),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(value = nominalThickness.value,
                 textStyle = TextStyle(fontSize = 13.sp),
-                onValueChange = { nominalThickness.value = format(it)},
+                onValueChange = { nominalThickness.value = format(it) },
                 modifier = Modifier.onFocusChanged {
                     isNumber(nominalThickness)
                 },
@@ -238,11 +233,11 @@ fun Ui(context: Context) {
         Row(modifier = Modifier
             .fillMaxWidth(1f)
             .padding(top = 10.dp)
-            .background(colorResource(id = R.color.white)),
+            .background(color = Color.White),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically){
             Button(onClick = {
-                calculate(context,argsForCalc) },
+                calculate(context ,argsForCalc) },
                 shape = RoundedCornerShape(100),
                 enabled = !isErrorBasicCurved && !isErrorDiameter && !isErrorIndex
                         && !isErrorCalculatedDiameter && !isErrorRefraction
@@ -250,11 +245,26 @@ fun Ui(context: Context) {
                 Text(text = "Результат")
             }
         }
+        Row(modifier = Modifier
+            .fillMaxWidth(1f)
+            .padding(top = 10.dp)
+            .background(color = Color.White),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically){
+            Button(onClick = {
+                navController.navigate(route = NavRoute.CanvasScreen.route) },
+                shape = RoundedCornerShape(100)/*,
+                enabled = !isErrorBasicCurved && !isErrorDiameter && !isErrorIndex
+                        && !isErrorCalculatedDiameter && !isErrorRefraction
+                        && !isErrorNominalThickness*/) {
+                Text(text = "Canvas")
+            }
+        }
         //Толщина по центру
         Row(modifier = Modifier
             .fillMaxWidth(1f)
             .padding(top = 30.dp)
-            .background(colorResource(id = R.color.white)),
+            .background(color = Color.White),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
             Text(text = thicknessCenter.value, fontSize = 20.sp)
@@ -263,10 +273,11 @@ fun Ui(context: Context) {
         Row(modifier = Modifier
             .fillMaxWidth(1f)
             .padding(top = 20.dp)
-            .background(colorResource(id = R.color.white)),
+            .background(color = Color.White),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
             Text(text = thicknessEdge.value, fontSize = 20.sp)
         }
     }
 }
+
