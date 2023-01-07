@@ -40,7 +40,10 @@ class MainActivity : ComponentActivity() {
             val context = LocalContext.current
             val mViewModel: MainViewModel = viewModel(factory = MainViewModelFactory(context.applicationContext as Application))
             val navController = rememberNavController()
-            OCNavHost(mViewModel = mViewModel, navController = navController)
+
+            OCNavHost(mViewModel = mViewModel, navController = navController, this)
+
+
         }
     }
 }

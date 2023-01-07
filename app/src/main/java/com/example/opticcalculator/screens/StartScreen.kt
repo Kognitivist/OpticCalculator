@@ -2,6 +2,7 @@ package com.example.opticcalculator.screens
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -29,20 +32,21 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.opticcalculator.MainViewModel
-import com.example.opticcalculator.MainViewModelFactory
-import com.example.opticcalculator.calculate
+import com.example.opticcalculator.*
 import com.example.opticcalculator.navigation.NavRoute
 import com.example.opticcalculator.ui.theme.*
 
 @Composable
-fun StartScreen(navController: NavHostController, viewModel: MainViewModel) {
+fun StartScreen(navController: NavHostController, viewModel: MainViewModel, lifecycleOwner: LifecycleOwner) {
+
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
-    val checkedState = remember { mutableStateOf(false) }
 
     val refraction = remember{ mutableStateOf("") }
     val calculatedDiameter = remember{ mutableStateOf("") }
@@ -61,12 +65,26 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel) {
         "diameter" to diameter, "calculatedDiameter" to calculatedDiameter,
         "thicknessCenter" to thicknessCenter, "thicknessEdge" to thicknessEdge)
 
+
     val isErrorRefraction: Boolean = refraction.value.isEmpty()
     val isErrorCalculatedDiameter: Boolean = isErrorCalculatedDiameter(calculatedDiameter.value)
     val isErrorIndex: Boolean = isErrorIndex(index.value)
     val isErrorBasicCurved: Boolean = isErrorBasicCurved(basicCurved.value, refraction.value)
     val isErrorNominalThickness: Boolean = isErrorNominalThickness(nominalThickness.value)
     val isErrorDiameter: Boolean = isErrorDiameter(diameter.value, calculatedDiameter.value)
+
+    viewModel.arguments.observe(lifecycleOwner){
+        if (viewModel.arguments.value != null){
+            refraction.value = viewModel.arguments.value!!["refraction"]!!.value
+            calculatedDiameter.value = viewModel.arguments.value!!["calculatedDiameter"]!!.value
+            index.value = viewModel.arguments.value!!["index"]!!.value
+            basicCurved.value = viewModel.arguments.value!!["basicCurved"]!!.value
+            nominalThickness.value = viewModel.arguments.value!!["nominalThickness"]!!.value
+            diameter.value = viewModel.arguments.value!!["diameter"]!!.value
+            thicknessCenter.value = viewModel.arguments.value!!["thicknessCenter"]!!.value
+            thicknessEdge.value = viewModel.arguments.value!!["thicknessEdge"]!!.value
+        }
+    }
 
 
 
@@ -93,7 +111,11 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel) {
             OutlinedTextField(
                 value = refraction.value,
                 textStyle = TextStyle(fontSize=13.sp),
-                onValueChange = { refraction.value = format(it) },
+                onValueChange = {
+                    refraction.value = format(it)
+                    viewModel.arguments.value = argsForCalc
+                    viewModel.arguments.value!!["thicknessCenter"]!!.value = ""
+                    viewModel.arguments.value!!["thicknessEdge"]!!.value = ""},
                 modifier = Modifier.onFocusChanged {
                     isNumber(refraction)
                 },
@@ -118,7 +140,10 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel) {
             verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(value = calculatedDiameter.value,
                 textStyle = TextStyle(fontSize = 13.sp),
-                onValueChange = { calculatedDiameter.value = format(it) },
+                onValueChange = { calculatedDiameter.value = format(it)
+                    viewModel.arguments.value = argsForCalc
+                    viewModel.arguments.value!!["thicknessCenter"]!!.value = ""
+                    viewModel.arguments.value!!["thicknessEdge"]!!.value = ""},
                 modifier = Modifier.onFocusChanged {
                     isNumber(calculatedDiameter)
                 },
@@ -150,7 +175,10 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel) {
             verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(value = index.value,
                 textStyle = TextStyle(fontSize = 13.sp),
-                onValueChange = { index.value = format(it) },
+                onValueChange = { index.value = format(it)
+                    viewModel.arguments.value = argsForCalc
+                    viewModel.arguments.value!!["thicknessCenter"]!!.value = ""
+                    viewModel.arguments.value!!["thicknessEdge"]!!.value = ""},
                 modifier = Modifier.onFocusChanged {
                     isNumber(index)
                 },
@@ -172,7 +200,10 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel) {
             OutlinedTextField(
                 value = diameter.value,
                 textStyle = TextStyle(fontSize = 13.sp),
-                onValueChange = { diameter.value = format(it) },
+                onValueChange = { diameter.value = format(it)
+                    viewModel.arguments.value = argsForCalc
+                    viewModel.arguments.value!!["thicknessCenter"]!!.value = ""
+                    viewModel.arguments.value!!["thicknessEdge"]!!.value = ""},
                 modifier = Modifier.onFocusChanged {
                     isNumber(diameter)
                 },
@@ -195,7 +226,10 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel) {
             OutlinedTextField(
                 value = basicCurved.value,
                 textStyle = TextStyle(fontSize = 13.sp),
-                onValueChange = { basicCurved.value = format(it) },
+                onValueChange = { basicCurved.value = format(it)
+                    viewModel.arguments.value = argsForCalc
+                    viewModel.arguments.value!!["thicknessCenter"]!!.value = ""
+                    viewModel.arguments.value!!["thicknessEdge"]!!.value = ""},
                 modifier = Modifier.onFocusChanged {
                     isNumber(basicCurved)
                 },
@@ -217,7 +251,10 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel) {
             verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(value = nominalThickness.value,
                 textStyle = TextStyle(fontSize = 13.sp),
-                onValueChange = { nominalThickness.value = format(it) },
+                onValueChange = { nominalThickness.value = format(it)
+                    viewModel.arguments.value = argsForCalc
+                    viewModel.arguments.value!!["thicknessCenter"]!!.value = ""
+                    viewModel.arguments.value!!["thicknessEdge"]!!.value = ""},
                 modifier = Modifier.onFocusChanged {
                     isNumber(nominalThickness)
                 },
@@ -237,7 +274,9 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel) {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically){
             Button(onClick = {
-                calculate(context ,argsForCalc) },
+                viewModel.calculate(context ,argsForCalc)
+                viewModel.arguments.value = argsForCalc
+                },
                 shape = RoundedCornerShape(100),
                 enabled = !isErrorBasicCurved && !isErrorDiameter && !isErrorIndex
                         && !isErrorCalculatedDiameter && !isErrorRefraction
@@ -252,11 +291,13 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel) {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically){
             Button(onClick = {
-                navController.navigate(route = NavRoute.CanvasScreen.route) },
-                shape = RoundedCornerShape(100)/*,
-                enabled = !isErrorBasicCurved && !isErrorDiameter && !isErrorIndex
+                navController.navigate(route = NavRoute.CanvasScreen.route)
+                },
+                shape = RoundedCornerShape(100),
+                enabled = viewModel.arguments.value != null && viewModel.arguments.value!!["thicknessCenter"]!!.value.isNotEmpty() &&
+                        !isErrorBasicCurved && !isErrorDiameter && !isErrorIndex
                         && !isErrorCalculatedDiameter && !isErrorRefraction
-                        && !isErrorNominalThickness*/) {
+                        && !isErrorNominalThickness) {
                 Text(text = "Canvas")
             }
         }

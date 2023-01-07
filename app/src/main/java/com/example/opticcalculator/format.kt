@@ -1,4 +1,4 @@
-package com.example.opticcalculator.ui.theme
+package com.example.opticcalculator
 
 import android.content.Context
 import androidx.compose.runtime.MutableState

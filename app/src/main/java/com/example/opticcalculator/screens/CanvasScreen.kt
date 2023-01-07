@@ -22,17 +22,18 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
 import com.example.opticcalculator.MainViewModel
 import com.example.opticcalculator.navigation.NavRoute
+import com.example.opticcalculator.round
 
 @Composable
-fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel){
+fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lifecycleOwner: LifecycleOwner){
 
     val context = LocalContext.current
+    val id:String = "1"
 
-    val basicCurved = remember{ mutableStateOf("300") }
-    val refraction = remember{ mutableStateOf("300") }
     val pxMM = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_MM, 1f,
         context.resources.displayMetrics
@@ -41,10 +42,20 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel){
         TypedValue.COMPLEX_UNIT_DIP, 1f,
         context.resources.displayMetrics
     )
+    val width = context.resources.displayMetrics.widthPixels
     val mm:Float = pxMM/pxDP
-    val diameter = remember{ mutableStateOf("${65*mm}") }
-    val rad1 = 166.67f*pxMM
-    val rad2 = 55.56f*pxMM
+
+    val diameter = remember{
+        mutableStateOf("${viewModel.arguments.value!!["calculatedDiameter"]!!.value.toDouble()*mm}")}
+    val basicCurved = viewModel.arguments.value!!["basicCurved"]!!.value.toDouble()
+    val refraction = viewModel.arguments.value!!["refraction"]!!.value.toDouble()
+    val index = viewModel.arguments.value!!["index"]!!.value.toDouble()
+    val thicknessCenter = (viewModel.arguments.value!!["thicknessCenter"]!!.value.toFloat())*pxMM
+    val fBC:Float = round((index-1)*1000/basicCurved).toFloat()
+    val sBC:Float = round((index-1)*1000/(basicCurved-refraction)).toFloat()
+
+    val rad1 = fBC*pxMM
+    val rad2 = sBC*pxMM
 
 
     Log.d("Mylog_pxMM", "${pxMM}")
@@ -60,21 +71,20 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel){
             modifier = Modifier
                 .fillMaxWidth()
                 .height(diameter.value.toDouble().dp)
-                .background(Color.Red)
         ) {
             Canvas(modifier = Modifier
                 .fillMaxSize()
                 .background(color = Color.White)){
                 drawCircle(color = Color.Blue,
                     radius = rad1,
-                    center = Offset(-rad1+200.dp.toPx(),(diameter.value.toDouble()/2).dp.toPx()),
+                    center = Offset(-rad1+(width/2)+(thicknessCenter),(diameter.value.toDouble()/2).dp.toPx()),
                     style = Fill,
                     //blendMode = BlendMode.Plus,
                     alpha = 1f)
                 drawCircle(
                     color = Color.White,
                     radius = rad2,
-                    center = Offset(-rad2+196.7.dp.toPx(),(diameter.value.toDouble()/2).dp.toPx()),
+                    center = Offset(-rad2+(width/2),(diameter.value.toDouble()/2).dp.toPx()),
                     style = Fill,
                     //blendMode = BlendMode.Plus,
                     alpha = 1f
