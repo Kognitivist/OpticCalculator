@@ -3,14 +3,13 @@ package com.example.opticcalculator.screens
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -18,13 +17,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -39,20 +42,46 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.opticcalculator.*
+import com.example.opticcalculator.R
 import com.example.opticcalculator.navigation.NavRoute
 import com.example.opticcalculator.ui.theme.*
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun StartScreen(navController: NavHostController, viewModel: MainViewModel, lifecycleOwner: LifecycleOwner) {
 
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    val checkedStateBC = remember { mutableStateOf(false) }
+    val checkedStateNT = remember { mutableStateOf(false) }
 
     val refraction = remember{ mutableStateOf("") }
     val calculatedDiameter = remember{ mutableStateOf("") }
     val index = remember{ mutableStateOf("") }
     val basicCurved = remember{ mutableStateOf("") }
+    if (isNumberBool(refraction) &&checkedStateBC.value && !isErrorRefraction(refraction.value)){
+        when(refraction.value.toDouble()){
+            in 0.0..3.0 -> viewModel.arguments.value!!["basicCurved"]!!.value = "6"
+            in 3.01..5.0 -> viewModel.arguments.value!!["basicCurved"]!!.value = "7"
+            in 5.01..7.0 -> viewModel.arguments.value!!["basicCurved"]!!.value = "8"
+            in 7.01..30.0 -> viewModel.arguments.value!!["basicCurved"]!!.value = "${refraction.value.toDouble()+1}"
+            in -3.0..-0.01 -> viewModel.arguments.value!!["basicCurved"]!!.value = "4"
+            in -5.0..-3.01 -> viewModel.arguments.value!!["basicCurved"]!!.value = "3"
+            in -30.0..-5.01 -> viewModel.arguments.value!!["basicCurved"]!!.value = "2"
+            else -> viewModel.arguments.value!!["basicCurved"]!!.value = "error"
+        }
+    }
     val nominalThickness = remember{ mutableStateOf("") }
+    if (isNumberBool(refraction) &&checkedStateNT.value && !isErrorRefraction(refraction.value)){
+        when(refraction.value.toDouble()){
+            in -1.5..1.5 -> viewModel.arguments.value!!["nominalThickness"]!!.value = "1.5"
+            else -> viewModel.arguments.value!!["nominalThickness"]!!.value = "1.2"
+        }
+    }
+
+
     val diameter = remember{ mutableStateOf("") }
 
     val thicknessCenter = remember{ mutableStateOf("") }
@@ -66,7 +95,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
         "thicknessCenter" to thicknessCenter, "thicknessEdge" to thicknessEdge)
 
 
-    val isErrorRefraction: Boolean = refraction.value.isEmpty()
+    val isErrorRefraction: Boolean = isErrorRefraction(refraction.value)
     val isErrorCalculatedDiameter: Boolean = isErrorCalculatedDiameter(calculatedDiameter.value)
     val isErrorIndex: Boolean = isErrorIndex(index.value)
     val isErrorBasicCurved: Boolean = isErrorBasicCurved(basicCurved.value, refraction.value)
@@ -108,6 +137,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             .background(color = Color.White),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
+            Row(modifier = Modifier.width(40.dp)){}
             OutlinedTextField(
                 value = refraction.value,
                 textStyle = TextStyle(fontSize=13.sp),
@@ -130,6 +160,13 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                 singleLine = true,
                 placeholder = { Text(text = "Введите значение") },
                 isError = isErrorRefraction)
+            IconButton(onClick = {
+                Toast.makeText(context, "Преломляющая сила линзы", Toast.LENGTH_LONG)
+                    .show()
+            }) {
+                Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_question_mark_24),
+                    contentDescription = "")
+            }
         }
         //Рассчетный диаметр
         Row(modifier = Modifier
@@ -138,6 +175,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             .background(color = Color.White),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
+            Row(modifier = Modifier.width(40.dp)){}
             OutlinedTextField(value = calculatedDiameter.value,
                 textStyle = TextStyle(fontSize = 13.sp),
                 onValueChange = { calculatedDiameter.value = format(it)
@@ -154,6 +192,14 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                 singleLine = true,
                 placeholder = { Text(text = "Введите значение") },
                 isError = isErrorCalculatedDiameter)
+            IconButton(onClick = {
+                Toast.makeText(context, "Минимальный диаметр линзы проходящей в оправу",
+                    Toast.LENGTH_LONG)
+                    .show()
+            }) {
+                Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_question_mark_24),
+                    contentDescription = "")
+            }
         }
         //Параметры заготовки заголовок
         Row(modifier = Modifier
@@ -173,6 +219,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             .background(color = Color.White),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
+            Row(modifier = Modifier.width(40.dp)){}
             OutlinedTextField(value = index.value,
                 textStyle = TextStyle(fontSize = 13.sp),
                 onValueChange = { index.value = format(it)
@@ -189,14 +236,23 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                 singleLine = true,
                 placeholder = { Text(text = "Введите значение") },
                 isError = isErrorIndex)
+            IconButton(onClick = {
+                Toast.makeText(context, "коэффициент преломления материала",
+                    Toast.LENGTH_LONG)
+                    .show()
+            }) {
+                Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_question_mark_24),
+                    contentDescription = "")
+            }
         }
         //Диаметр
         Row(modifier = Modifier
             .fillMaxWidth(1f)
             .padding(top = 0.dp)
             .background(color = Color.White),
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
+            Row(modifier = Modifier.width(40.dp)){}
             OutlinedTextField(
                 value = diameter.value,
                 textStyle = TextStyle(fontSize = 13.sp),
@@ -215,14 +271,27 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                 placeholder = { Text(text = "Введите значение") },
                 isError = isErrorDiameter
             )
+            IconButton(onClick = {
+                Toast.makeText(context, "Диаметр заказанной заготовки", Toast.LENGTH_LONG)
+                    .show()
+            }) {
+                Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_question_mark_24),
+                    contentDescription = "")
+            }
         }
         //БК
         Row(modifier = Modifier
             .fillMaxWidth(1f)
             .padding(top = 0.dp)
             .background(color = Color.White),
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
+            Row(modifier = Modifier.width(40.dp)) {
+                Checkbox(
+                    checked = checkedStateBC.value,
+                    onCheckedChange = { checkedStateBC.value = it }
+                )
+            }
             OutlinedTextField(
                 value = basicCurved.value,
                 textStyle = TextStyle(fontSize = 13.sp),
@@ -240,6 +309,16 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                 singleLine = true,
                 placeholder = { Text(text = "Введите значение") },
                 isError = isErrorBasicCurved)
+            IconButton(onClick = {
+                Toast.makeText(context, """Кривизна передней поверхности ОЛ.
+                    |Если неизвестно, отметь галочку "значение по умолчанию"
+                """.trimMargin(),
+                    Toast.LENGTH_LONG)
+                    .show()
+            }) {
+                Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_question_mark_24),
+                    contentDescription = "")
+            }
 
         }
         //Номинальная толщина
@@ -249,6 +328,13 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             .background(color = Color.White),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
+            Row(modifier = Modifier.width(40.dp)){
+                Checkbox(
+                    checked = checkedStateNT.value,
+                    onCheckedChange = { checkedStateNT.value = it
+                    }
+                )
+            }
             OutlinedTextField(value = nominalThickness.value,
                 textStyle = TextStyle(fontSize = 13.sp),
                 onValueChange = { nominalThickness.value = format(it)
@@ -262,9 +348,21 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(
+                    onDone = {keyboardController?.hide()}),
                 singleLine = true,
                 placeholder = { Text(text = "Введите значение") },
                 isError = isErrorNominalThickness)
+            IconButton(onClick = {
+                Toast.makeText(context, """Минимальная толщина заготовки.
+                    |Если неизвестно, ставьте галочку "значение по умолчанию"
+                """.trimMargin(),
+                    Toast.LENGTH_LONG)
+                    .show()
+            }) {
+                Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_question_mark_24),
+                    contentDescription = "")
+            }
         }
         //Кнопка "результат"
         Row(modifier = Modifier
@@ -276,6 +374,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             Button(onClick = {
                 viewModel.calculate(context ,argsForCalc)
                 viewModel.arguments.value = argsForCalc
+                keyboardController?.hide()
                 },
                 shape = RoundedCornerShape(100),
                 enabled = !isErrorBasicCurved && !isErrorDiameter && !isErrorIndex
@@ -306,8 +405,9 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             .fillMaxWidth(1f)
             .padding(top = 30.dp)
             .background(color = Color.White),
-            horizontalArrangement = Arrangement.Center,
+            horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically) {
+            Text(text = "Толщина по центру: ")
             Text(text = thicknessCenter.value, fontSize = 20.sp)
         }
         //Толщина по краю
@@ -315,8 +415,9 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             .fillMaxWidth(1f)
             .padding(top = 20.dp)
             .background(color = Color.White),
-            horizontalArrangement = Arrangement.Center,
+            horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically) {
+            Text(text = "Толщина по краю: ")
             Text(text = thicknessEdge.value, fontSize = 20.sp)
         }
     }

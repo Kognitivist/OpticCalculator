@@ -18,12 +18,27 @@ fun round(value: Double): Double {
     return (value * 100.0).roundToInt() / 100.0
 }
 
-fun isNumber(mutableState: MutableState<String>){
-    try {
-        mutableState.value = mutableState.value.toDouble().toString()
+fun isNumberBool(mutableState: MutableState<String>): Boolean{
+    return try {
+        val x = mutableState.value.toDouble().toString()
+        true
     }
     catch (_: Exception){
-        if (mutableState.value.isNotEmpty()){mutableState.value = "error"}
+        false
+    }
+}
+
+fun isNumber(mutableState: MutableState<String>){
+    if(!isNumberBool(mutableState) && mutableState.value.isNotEmpty()){
+        mutableState.value = "error"
+    }
+}
+fun isErrorRefraction(value: String):Boolean{
+    return try {
+        value.isEmpty() || value.toDouble() < -30 || value.toDouble() > 30
+    }
+    catch (_: Exception){
+        true
     }
 }
 fun isErrorCalculatedDiameter(value: String):Boolean{
