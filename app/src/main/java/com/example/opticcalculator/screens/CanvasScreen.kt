@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.Card
+import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -32,7 +33,6 @@ import com.example.opticcalculator.round
 fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lifecycleOwner: LifecycleOwner){
 
     val context = LocalContext.current
-    val id:String = "1"
 
     val pxMM = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_MM, 1f,
@@ -56,6 +56,8 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
 
     val rad1 = fBC*pxMM
     val rad2 = sBC*pxMM
+
+
 
 
     Log.d("Mylog_pxMM", "${pxMM}")
