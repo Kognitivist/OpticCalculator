@@ -15,7 +15,8 @@ import kotlin.math.pow
 class MainViewModel (application: Application): AndroidViewModel(application) {
     val context = application
 
-
+    val indexList = mutableListOf("1.5", "1.53", "1.56", "1.59", "1.6",
+        "1.61", "1.67", "1.7", "1.74", "1.76", "1.8", "1.9")
     val arguments: MutableLiveData<Map<String, MutableState<String>>> by lazy {
         MutableLiveData<Map<String, MutableState<String>>>()
     }
@@ -51,8 +52,6 @@ class MainViewModel (application: Application): AndroidViewModel(application) {
                 calculatedDiameter = fBC*2}
         }
 
-
-
         val firstCurvature =
             fBC - round(((round(fBC.pow(2)))-(round(0.25*(diameter.pow(2))))).pow(1/2.toDouble()))
 
@@ -67,19 +66,13 @@ class MainViewModel (application: Application): AndroidViewModel(application) {
         if (refraction >= 0){
             thicknessCenter.value = "${round(nominalThickness + firstCurvature - secondCurvature)}"
             thicknessEdge.value = "${round(nominalThickness + firstCurvature - secondCurvature - altFirstCurvature + altSecondCurvature)}"
-
         }
         else{
             thicknessCenter.value = "${round(nominalThickness)}"
             thicknessEdge.value = "${round(nominalThickness - firstCurvature + secondCurvature)}"
         }
     }
-
-
 }
-
-
-
 
 class MainViewModelFactory(private val application: Application): ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
