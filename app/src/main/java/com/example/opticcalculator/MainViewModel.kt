@@ -72,6 +72,38 @@ class MainViewModel (application: Application): AndroidViewModel(application) {
             thicknessEdge.value = "${round(nominalThickness - firstCurvature + secondCurvature)}"
         }
     }
+    fun compareCalculate(viewModel: MainViewModel, indexOL:String, compareThicknessCenter: MutableState<String>, compareThicknessEdge: MutableState<String>, type:Boolean = true){
+        val index = indexOL.toDouble()
+        val basicCurved = viewModel.arguments.value!!["basicCurved"]!!.value.toDouble()
+        val refraction = viewModel.arguments.value!!["refraction"]!!.value.toDouble()
+        val diameter = viewModel.arguments.value!!["diameter"]!!.value.toDouble()
+        val nominalThickness = viewModel.arguments.value!!["nominalThickness"]!!.value.toDouble()
+        val calculatedDiameter = viewModel.arguments.value!!["calculatedDiameter"]!!.value.toDouble()
+
+        val fBC = round((index-1)*1000/basicCurved)
+        val sBC = round((index-1)*1000/(basicCurved-refraction))
+
+
+        val firstCurvature =
+            fBC - round(((round(fBC.pow(2)))-(round(0.25*(diameter.pow(2))))).pow(1/2.toDouble()))
+
+        val secondCurvature =
+            sBC - round(((round(sBC.pow(2)))-(round(0.25*(diameter.pow(2))))).pow(1/2.toDouble()))
+
+        val altFirstCurvature =
+            fBC - round(((round(fBC.pow(2)))-(round(0.25*(calculatedDiameter.pow(2))))).pow(1/2.toDouble()))
+        val altSecondCurvature =
+            sBC - round(((round(sBC.pow(2)))-(round(0.25*(calculatedDiameter.pow(2))))).pow(1/2.toDouble()))
+
+        if (refraction >= 0){
+            compareThicknessCenter.value = "${round(nominalThickness + firstCurvature - secondCurvature)}"
+            compareThicknessEdge.value = "${round(nominalThickness + firstCurvature - secondCurvature - altFirstCurvature + altSecondCurvature)}"
+        }
+        else{
+            compareThicknessCenter.value = "${round(nominalThickness)}"
+            compareThicknessEdge.value = "${round(nominalThickness - firstCurvature + secondCurvature)}"
+        }
+    }
 }
 
 class MainViewModelFactory(private val application: Application): ViewModelProvider.Factory {

@@ -55,8 +55,17 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
     val refraction = viewModel.arguments.value!!["refraction"]!!.value.toDouble()
     val index = viewModel.arguments.value!!["index"]!!.value.toDouble()
     val thicknessCenter = (viewModel.arguments.value!!["thicknessCenter"]!!.value.toFloat())*convertMMtoPX
-    val fBC:Float = round((index-1)*1000/basicCurved).toFloat()
-    val sBC:Float = round((index-1)*1000/(basicCurved-refraction)).toFloat()
+    val fBC: Float = round((index-1)*1000/basicCurved).toFloat()
+    val sBC: Float = round((index-1)*1000/(basicCurved-refraction)).toFloat()
+
+    val compareIndex = remember { mutableStateOf(viewModel.arguments.value!!["index"]!!.value) }
+    val compareThicknessCenter = remember { mutableStateOf(viewModel.arguments.value!!["thicknessCenter"]!!.value) }
+    val compareThicknessEdge = remember { mutableStateOf(viewModel.arguments.value!!["thicknessEdge"]!!.value) }
+    val compareFBC: Float = round((compareIndex.value.toDouble()-1)*1000/basicCurved).toFloat()
+    val compareSBC: Float = round((compareIndex.value.toDouble()-1)*1000/(basicCurved-refraction)).toFloat()
+
+    val compareRad1 = compareFBC*convertMMtoPX
+    val compareRad2 = compareSBC*convertMMtoPX
 
     val rad1 = fBC*convertMMtoPX
     val rad2 = sBC*convertMMtoPX
@@ -64,15 +73,7 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
     val checkedState = remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
-
-
-
-
-    Log.d("Mylog_pxMM", "${convertMMtoPX}")
-    Log.d("Mylog_pxDP", "${convertDPtoPX}")
-    Log.d("Mylog_width", "${context.resources.displayMetrics.widthPixels}")
-    Log.d("Mylog_height", "${context.resources.displayMetrics.heightPixels}")
-
+    val state = remember { mutableStateOf(true) }
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -87,6 +88,9 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                     .fillMaxWidth()
                     .padding(12.dp)
                     .clickable {
+                        compareIndex.value = n
+                        viewModel.compareCalculate(viewModel,n,compareThicknessCenter,compareThicknessEdge)
+                        coroutineScope.launch { scaffoldState.drawerState.close() }
                     }) {
                     Text(text = n, textAlign = TextAlign.Center, fontSize = 20.sp)
                 }
@@ -98,12 +102,13 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
     ) {
         Column(modifier = Modifier
             .fillMaxSize()
+            .padding(top = 30.dp)
             .background(Color.White),
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally) {
             /** добавить линзу для сравнения switch*/
             Row(modifier = Modifier
-                .fillMaxWidth().padding(top = 10.dp),
+                .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically) {
                 Switch(
@@ -112,15 +117,35 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                 )
                 Text(text = "Добавить линзу для сравнения", fontSize = 18.sp)
             }
+            /**выбор материала сравнивваемой ОЛ*/
             if (checkedState.value){
-                /**выбор материала сравнивваемой ОЛ*/
                 Row(modifier = Modifier
                     .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "дополнительный функционал)))")
+                    Button(onClick = {
+                        coroutineScope.launch { scaffoldState.drawerState.open() }
+                    }) {
+                        Text(text = "Выбрать индекс")
+                    }
                 }
+                /*Row(modifier = Modifier
+                    .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically){
+                    RadioButton(
+                        selected = state.value,
+                        onClick = { state.value = true }
+                    )
+                    Text(text = "Сферическая ОЛ")
+                    RadioButton(
+                        selected = !state.value,
+                        onClick = { state.value = false }
+                    )
+                    Text(text = "Асферическая ОЛ")
+                }*/
             }
+            /** canvas OL*/
             Row(modifier = Modifier
                 .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
@@ -153,8 +178,10 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                             )
                         }
                     }
-                    Text(text = "$refraction")
+                    Text(text = "$refraction D")
                     Text(text = "Индекс: $index")
+                    Text(text = "Толщина центра ${viewModel.arguments.value!!["thicknessCenter"]!!.value} мм")
+                    Text(text = "Толщина края ${viewModel.arguments.value!!["thicknessEdge"]!!.value} мм")
                 }
                 /** Сравниваемая линза*/
                 if (checkedState.value){
@@ -172,21 +199,23 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                                 .background(color = Color.White)){
                                 /** окружность передней кривизны */
                                 drawCircle(color = Color.Blue,
-                                    radius = rad1,
-                                    center = Offset(-rad1+(widthToPX/2)-30f,(diameter.value.toDouble()/2).dp.toPx()),
+                                    radius = compareRad1,
+                                    center = Offset(-compareRad1+(widthToPX/2)-30f,(diameter.value.toDouble()/2).dp.toPx()),
                                     style = Fill,
                                 )
                                 /** окружность задней кривизны */
                                 drawCircle(
                                     color = Color.White,
-                                    radius = rad2,
-                                    center = Offset(-rad2+(widthToPX/2)-(thicknessCenter)-30f,(diameter.value.toDouble()/2).dp.toPx()),
+                                    radius = compareRad2,
+                                    center = Offset( -compareRad2+(widthToPX/2)-(compareThicknessCenter.value.toFloat()*convertMMtoPX)-30f,(diameter.value.toDouble()/2).dp.toPx()),
                                     style = Fill,
                                 )
                             }
                         }
-                        Text(text = "$refraction")
-                        Text(text = "Индекс: $index")
+                        Text(text = "$refraction D")
+                        Text(text = "Индекс: ${compareIndex.value}")
+                        Text(text = "Толщина центра ${compareThicknessCenter.value} мм")
+                        Text(text = "Толщина края ${compareThicknessEdge.value} мм")
                     }
                 }
             }
