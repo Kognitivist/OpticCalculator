@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -120,7 +121,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
         drawerContent = {
             LazyColumn(modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 15.dp),
+                .background(com.example.opticcalculator.ui.theme.BackgroundColor_1),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally) {
                 items(viewModel.indexList){
@@ -134,22 +135,28 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                         viewModel.arguments.value!!["thicknessEdge"]!!.value = ""
                         coroutineScope.launch { scaffoldState.drawerState.close() }
                         focusManager.moveFocus(FocusDirection.Down)
-                    }) {
-                    Text(text = n, textAlign = TextAlign.Center, fontSize = 20.sp)
+                    },
+                    backgroundColor = com.example.opticcalculator.ui.theme.BackgroundColor_2,
+                    shape = RoundedCornerShape(topEnd = 20.dp, bottomEnd = 20.dp),
+                    border = BorderStroke(5.dp, com.example.opticcalculator.ui.theme.Border)
+                ) {
+                    Text(text = n, textAlign = TextAlign.Center, fontSize = 25.sp)
                 }
                 }
             }
         },
-        drawerShape = RoundedCornerShape(topEnd = 20.dp, bottomEnd = 20.dp)
+        drawerShape = RoundedCornerShape(topEnd = 20.dp, bottomEnd = 20.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(com.example.opticcalculator.ui.theme.BackgroundColor_1)
     ) {
         Column(modifier = Modifier
             .fillMaxSize(1f)
-            .background(Color.White)) {
+            .background(com.example.opticcalculator.ui.theme.BackgroundColor_1)) {
             /**Рассчетные параметры заголовок*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 20.dp)
-                .background(color = Color.White),
+                .padding(top = 20.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "Рассчетные параметры", fontWeight = FontWeight.Bold)
@@ -158,8 +165,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             /**Рефракция*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 10.dp)
-                .background(color = Color.White),
+                .padding(top = 10.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
                 Row(modifier = Modifier.width(40.dp)){}
@@ -196,8 +202,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             /**Рассчетный диаметр*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 0.dp)
-                .background(color = Color.White),
+                .padding(top = 0.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
                 Row(modifier = Modifier.width(40.dp)){}
@@ -235,8 +240,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             /**Параметры заготовки заголовок*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 20.dp)
-                .background(color = Color.White),
+                .padding(top = 20.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "Параметры заготовки", fontWeight = FontWeight.Bold)
@@ -246,8 +250,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             /**Индекс*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 10.dp)
-                .background(color = Color.White),
+                .padding(top = 10.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
                 Row(modifier = Modifier.width(40.dp)){}
@@ -280,8 +283,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             /**Диаметр*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 0.dp)
-                .background(color = Color.White),
+                .padding(top = 0.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
                 Row(modifier = Modifier.width(40.dp)){}
@@ -318,14 +320,16 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             /**БК*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 0.dp)
-                .background(color = Color.White),
+                .padding(top = 0.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
                 Row(modifier = Modifier.width(40.dp)) {
                     Checkbox(
                         checked = checkedStateBC.value,
-                        onCheckedChange = { checkedStateBC.value = it }
+                        onCheckedChange = { checkedStateBC.value = it },
+                        colors  = CheckboxDefaults.colors(
+                            checkedColor = TrackColor,
+                            checkmarkColor = ButtonColor)
                     )
                 }
                 OutlinedTextField(
@@ -365,15 +369,16 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             /**Номинальная толщина*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 0.dp)
-                .background(color = Color.White),
+                .padding(top = 0.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
                 Row(modifier = Modifier.width(40.dp)){
                     Checkbox(
                         checked = checkedStateNT.value,
-                        onCheckedChange = { checkedStateNT.value = it
-                        }
+                        onCheckedChange = { checkedStateNT.value = it },
+                        colors  = CheckboxDefaults.colors(
+                            checkedColor = TrackColor,
+                            checkmarkColor = ButtonColor)
                     )
                 }
                 OutlinedTextField(value = nominalThickness.value,
@@ -409,8 +414,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             /**Кнопка "результат"*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 10.dp)
-                .background(color = Color.White),
+                .padding(top = 10.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically){
                 Button(onClick = {
@@ -418,21 +422,22 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                     viewModel.arguments.value = argsForCalc
                     keyboardController?.hide()
                 },
-                    shape = RoundedCornerShape(100),
+                    shape = RoundedCornerShape(20),
                     enabled = !isErrorBasicCurved(basicCurved.value, refraction.value)
                             && !isErrorDiameter(diameter.value, calculatedDiameter.value)
                             && !isErrorIndex(index.value)
                             && !isErrorCalculatedDiameter(calculatedDiameter.value)
                             && !isErrorRefraction(refraction.value)
-                            && !isErrorNominalThickness(nominalThickness.value)) {
+                            && !isErrorNominalThickness(nominalThickness.value),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = ButtonColor,
+                        contentColor = Color.DarkGray)) {
                     Text(text = "Результат")
                 }
             }
             /**Кнопка перехода на экран Canvas*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 10.dp)
-                .background(color = Color.White),
+                .padding(top = 10.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically){
                 Button(onClick = {
@@ -453,8 +458,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             /**Толщина по центру*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 30.dp)
-                .background(color = Color.White),
+                .padding(top = 30.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "Толщина по центру: ")
@@ -463,8 +467,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             /**Толщина по краю*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 20.dp)
-                .background(color = Color.White),
+                .padding(top = 20.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "Толщина по краю: ")

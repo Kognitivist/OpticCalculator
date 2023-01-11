@@ -1,8 +1,10 @@
 package com.example.opticcalculator.screens
 
 import android.annotation.SuppressLint
+import android.content.res.Resources
 import android.util.Log
 import android.util.TypedValue
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,15 +25,19 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
 import com.example.opticcalculator.MainViewModel
+import com.example.opticcalculator.R
 import com.example.opticcalculator.round
+import com.example.opticcalculator.ui.theme.*
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -83,40 +89,54 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
         drawerContent = {
             LazyColumn(modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 15.dp),
+                .background(BackgroundColor_1),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally) {
                 items(viewModel.indexList){
                         n -> Card(modifier = Modifier
                     .fillMaxWidth()
                     .padding(12.dp)
+                    .background(BackgroundColor_2)
                     .clickable {
                         compareIndex.value = n
-                        viewModel.compareCalculate(viewModel,n,compareThicknessCenter,compareThicknessEdge)
+                        viewModel.compareCalculate(
+                            viewModel,
+                            n,
+                            compareThicknessCenter,
+                            compareThicknessEdge
+                        )
                         coroutineScope.launch { scaffoldState.drawerState.close() }
-                    }) {
-                    Text(text = n, textAlign = TextAlign.Center, fontSize = 20.sp)
+                    },
+                    backgroundColor = BackgroundColor_2,
+                    shape = RoundedCornerShape(topEnd = 20.dp, bottomEnd = 20.dp),
+                    border = BorderStroke(5.dp, Border)
+                ) {
+                    Text(text = n, textAlign = TextAlign.Center, fontSize = 25.sp)
                 }
                 }
             }
         },
         drawerShape = RoundedCornerShape(topEnd = 20.dp, bottomEnd = 20.dp),
-        modifier = Modifier.padding(1.dp)
+        modifier = Modifier
+            .background(BackgroundColor_1)
     ) {
         Column(modifier = Modifier
             .fillMaxSize()
-            .padding(top = 30.dp)
-            .background(Color.White),
+            .background(BackgroundColor_1),
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally) {
             /** добавить линзу для сравнения switch*/
             Row(modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(top = 25.dp),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically) {
                 Switch(
                     checked = checkedState.value,
-                    onCheckedChange = { checkedState.value = it }
+                    onCheckedChange = { checkedState.value = it },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = ButtonColor,
+                        checkedTrackColor = TrackColor,)
                 )
                 Text(text = "Добавить линзу для сравнения", fontSize = 18.sp)
             }
@@ -128,7 +148,11 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                     verticalAlignment = Alignment.CenterVertically) {
                     Button(onClick = {
                         coroutineScope.launch { scaffoldState.drawerState.open() }
-                    }) {
+                    },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = ButtonColor,
+                            contentColor = Color.DarkGray),
+                        shape = RoundedCornerShape(20)
+                    ) {
                         Text(text = "Выбрать индекс")
                     }
                 }
@@ -161,20 +185,23 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                     Card(
                         modifier = Modifier
                             .width((widthToDP / 2).dp)
-                            .height(diameter.value.toDouble().dp)
+                            .height(diameter.value.toDouble().dp),
+                        elevation = 0.dp,
+                        border = BorderStroke(2.dp, Border)
                     ) {
                         Canvas(modifier = Modifier
                             .fillMaxSize()
-                            .background(color = Color.White)){
+                            .background(BackgroundColor_2)
+                        ){
                             /** окружность передней кривизны */
-                            drawCircle(color = com.example.opticcalculator.ui.theme.ColorOfLens,
+                            drawCircle(color = ColorOfLens,
                                 radius = rad1,
                                 center = Offset(-rad1+(widthToPX/2)-100f,(diameter.value.toDouble()/2).dp.toPx()),
                                 style = Fill,
                             )
                             /** окружность задней кривизны */
                             drawCircle(
-                                color = Color.White,
+                                color = BackgroundColor_2,
                                 radius = rad2,
                                 center = Offset(-rad2+(widthToPX/2)-(thicknessCenter)-100f,(diameter.value.toDouble()/2).dp.toPx()),
                                 style = Fill,
@@ -183,7 +210,7 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                                 drawRect(
                                     topLeft = Offset(0f,0f),
                                     size = Size(-rad2+(widthToPX/2)-(thicknessCenter)-100f,diameter.value.toDouble().dp.toPx()),
-                                    color = Color.White
+                                    color = BackgroundColor_1
                                 )
                             }
                         }
@@ -202,20 +229,22 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                         Card(
                             modifier = Modifier
                                 .width((widthToDP / 2).dp)
-                                .height(diameter.value.toDouble().dp)
+                                .height(diameter.value.toDouble().dp),
+                            elevation = 0.dp,
+                            border = BorderStroke(2.dp, Border)
                         ) {
                             Canvas(modifier = Modifier
                                 .fillMaxSize()
-                                .background(color = Color.White)){
+                                .background(BackgroundColor_2)){
                                 /** окружность передней кривизны */
-                                drawCircle(color = com.example.opticcalculator.ui.theme.ColorOfLens,
+                                drawCircle(color = ColorOfLens,
                                     radius = compareRad1,
                                     center = Offset(-compareRad1+(widthToPX/2)-100f,(diameter.value.toDouble()/2).dp.toPx()),
                                     style = Fill,
                                 )
                                 /** окружность задней кривизны */
                                 drawCircle(
-                                    color = Color.White,
+                                    color = BackgroundColor_2,
                                     radius = compareRad2,
                                     center = Offset( -compareRad2+(widthToPX/2)-(compareThicknessCenter.value.toFloat()*convertMMtoPX)-100f,(diameter.value.toDouble()/2).dp.toPx()),
                                     style = Fill,
@@ -233,8 +262,23 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                         Text(text = "$refraction D", fontWeight = FontWeight.Bold)
                         Text(text = "Индекс: ${compareIndex.value}", fontWeight = FontWeight.Bold)
                         Text(text = "Толщина центра ${compareThicknessCenter.value} мм",
-                            fontWeight = FontWeight.Bold)
-                        Text(text = "Толщина края ${compareThicknessEdge.value} мм", fontWeight = FontWeight.Bold)
+                            fontWeight = FontWeight.Bold,
+                            color =
+                            if (compareThicknessCenter.value.toDouble() < viewModel.arguments.value!!["thicknessCenter"]!!.value.toDouble()){
+                                Color.Green}
+                            else if (compareThicknessCenter.value.toDouble() > viewModel.arguments.value!!["thicknessCenter"]!!.value.toDouble()){
+                                Color.Red}
+                            else{ Color.Black}
+                        )
+
+                        Text(text = "Толщина края ${compareThicknessEdge.value} мм",
+                            fontWeight = FontWeight.Bold,
+                            color = if (compareThicknessEdge.value.toDouble() < viewModel.arguments.value!!["thicknessEdge"]!!.value.toDouble()){
+                                Color.Green}
+                            else if (compareThicknessEdge.value.toDouble() > viewModel.arguments.value!!["thicknessEdge"]!!.value.toDouble()){
+                                Color.Red}
+                            else{ Color.Black}
+                        )
                     }
                 }
             }
