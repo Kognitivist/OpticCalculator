@@ -186,7 +186,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                     placeholder = { Text(text = "Введите значение") },
                     isError = isErrorRefraction(refraction.value))
                 IconButton(onClick = {
-                    Toast.makeText(context, "Преломляющая сила линзы", Toast.LENGTH_LONG)
+                    Toast.makeText(context, "Преломляющая сила линзы от -15 до +15", Toast.LENGTH_LONG)
                         .show()
                 }) {
                     Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_question_mark_24),
@@ -222,7 +222,9 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                     placeholder = { Text(text = "Введите значение") },
                     isError = isErrorCalculatedDiameter(calculatedDiameter.value))
                 IconButton(onClick = {
-                    Toast.makeText(context, "Минимальный диаметр линзы проходящей в оправу",
+                    Toast.makeText(context, """Минимальный диаметр линзы проходящей в оправу,
+                        |не может быть больше диаметра заготовки (до 90мм)
+                    """.trimMargin(),
                         Toast.LENGTH_LONG)
                         .show()
                 }) {
@@ -306,7 +308,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                     isError = isErrorDiameter(diameter.value, calculatedDiameter.value)
                 )
                 IconButton(onClick = {
-                    Toast.makeText(context, "Диаметр заказанной заготовки", Toast.LENGTH_LONG)
+                    Toast.makeText(context, "Диаметр заказанной заготовки, до 90мм", Toast.LENGTH_LONG)
                         .show()
                 }) {
                     Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_question_mark_24),
@@ -349,6 +351,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                     isError = isErrorBasicCurved(basicCurved.value, refraction.value) )
                 IconButton(onClick = {
                     Toast.makeText(context, """Кривизна передней поверхности ОЛ.
+                    |Не более 16 диоптрий
                     |Если неизвестно, отметь галочку "значение по умолчанию"
                 """.trimMargin(),
                         Toast.LENGTH_LONG)
@@ -393,6 +396,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                     isError = isErrorNominalThickness(nominalThickness.value))
                 IconButton(onClick = {
                     Toast.makeText(context, """Минимальная толщина заготовки.
+                    |От 0 до 3мм
                     |Если неизвестно, ставьте галочку "значение по умолчанию"
                 """.trimMargin(),
                         Toast.LENGTH_LONG)

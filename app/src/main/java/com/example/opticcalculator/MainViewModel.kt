@@ -37,19 +37,19 @@ class MainViewModel (application: Application): AndroidViewModel(application) {
 
         if (fBC < diameter/2 || sBC < diameter/2){
             if (fBC >= sBC){
-                args["diameter"]!!.value = (sBC*2).toString()
-                diameter = sBC*2 }
-            else {args["diameter"]!!.value = (fBC*2).toString()
-                diameter = fBC*2}
+                args["diameter"]!!.value = (sBC*1.1).toString()
+                diameter = sBC*1.1 }
+            else {args["diameter"]!!.value = (fBC*1.1).toString()
+                diameter = fBC*1.1}
             Toast.makeText(context, "При данных параметрах диаметр уменьшен до максимально возможного", Toast.LENGTH_LONG)
                 .show()
         }
         if (fBC < calculatedDiameter/2 || sBC < calculatedDiameter/2){
             if (fBC >= sBC){
-                args["calculatedDiameter"]!!.value = (sBC*2).toString()
-                calculatedDiameter = sBC*2}
-            else {args["calculatedDiameter"]!!.value = (fBC*2).toString()
-                calculatedDiameter = fBC*2}
+                args["calculatedDiameter"]!!.value = (sBC*1.1).toString()
+                calculatedDiameter = sBC*1.1}
+            else {args["calculatedDiameter"]!!.value = (fBC*1.1).toString()
+                calculatedDiameter = fBC*1.1}
         }
 
         val firstCurvature =

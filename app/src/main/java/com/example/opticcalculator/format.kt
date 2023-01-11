@@ -35,7 +35,7 @@ fun isNumber(mutableState: MutableState<String>){
 }
 fun isErrorRefraction(value: String):Boolean{
     return try {
-        value.isEmpty() || value.toDouble() < -30 || value.toDouble() > 30
+        value.isEmpty() || value.toDouble() < -15 || value.toDouble() > 15
     }
     catch (_: Exception){
         true
@@ -43,7 +43,7 @@ fun isErrorRefraction(value: String):Boolean{
 }
 fun isErrorCalculatedDiameter(value: String):Boolean{
     return try {
-        value.isEmpty() || value.toDouble() <= 0
+        value.isEmpty() || value.toDouble() <= 0 || value.toDouble() > 90
     }
     catch (_: Exception){
         true
@@ -59,7 +59,8 @@ fun isErrorIndex(value: String):Boolean{
 }
 fun isErrorBasicCurved(value1: String, value2:String):Boolean{
     return try {
-        value1.isEmpty() || value1.toDouble() <= value2.toDouble() || value1.toDouble() <= 0
+        value1.isEmpty() || value1.toDouble() <= value2.toDouble()
+                || value1.toDouble() <= 0 || value1.toDouble() > 16
     }
     catch (_: Exception){
         true
@@ -67,7 +68,7 @@ fun isErrorBasicCurved(value1: String, value2:String):Boolean{
 }
 fun isErrorNominalThickness(value: String):Boolean{
     return try {
-        value.isEmpty() || value.toDouble() <= 0
+        value.isEmpty() || value.toDouble() < 0 || value.toDouble() > 3
     }
     catch (_: Exception){
         true

@@ -19,9 +19,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -164,24 +167,31 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                             .fillMaxSize()
                             .background(color = Color.White)){
                             /** окружность передней кривизны */
-                            drawCircle(color = Color.Blue,
+                            drawCircle(color = com.example.opticcalculator.ui.theme.ColorOfLens,
                                 radius = rad1,
-                                center = Offset(-rad1+(widthToPX/2)-30f,(diameter.value.toDouble()/2).dp.toPx()),
+                                center = Offset(-rad1+(widthToPX/2)-100f,(diameter.value.toDouble()/2).dp.toPx()),
                                 style = Fill,
                             )
                             /** окружность задней кривизны */
                             drawCircle(
                                 color = Color.White,
                                 radius = rad2,
-                                center = Offset(-rad2+(widthToPX/2)-(thicknessCenter)-30f,(diameter.value.toDouble()/2).dp.toPx()),
+                                center = Offset(-rad2+(widthToPX/2)-(thicknessCenter)-100f,(diameter.value.toDouble()/2).dp.toPx()),
                                 style = Fill,
                             )
+                            if (rad2 < (widthToPX/2)-(thicknessCenter)-100f){
+                                drawRect(
+                                    topLeft = Offset(0f,0f),
+                                    size = Size(-rad2+(widthToPX/2)-(thicknessCenter)-100f,diameter.value.toDouble().dp.toPx()),
+                                    color = Color.White
+                                )
+                            }
                         }
                     }
-                    Text(text = "$refraction D")
-                    Text(text = "Индекс: $index")
-                    Text(text = "Толщина центра ${viewModel.arguments.value!!["thicknessCenter"]!!.value} мм")
-                    Text(text = "Толщина края ${viewModel.arguments.value!!["thicknessEdge"]!!.value} мм")
+                    Text(text = "$refraction D", fontWeight = FontWeight.Bold)
+                    Text(text = "Индекс: $index", fontWeight = FontWeight.Bold)
+                    Text(text = "Толщина центра ${viewModel.arguments.value!!["thicknessCenter"]!!.value} мм", fontWeight = FontWeight.Bold)
+                    Text(text = "Толщина края ${viewModel.arguments.value!!["thicknessEdge"]!!.value} мм", fontWeight = FontWeight.Bold)
                 }
                 /** Сравниваемая линза*/
                 if (checkedState.value){
@@ -198,24 +208,33 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                                 .fillMaxSize()
                                 .background(color = Color.White)){
                                 /** окружность передней кривизны */
-                                drawCircle(color = Color.Blue,
+                                drawCircle(color = com.example.opticcalculator.ui.theme.ColorOfLens,
                                     radius = compareRad1,
-                                    center = Offset(-compareRad1+(widthToPX/2)-30f,(diameter.value.toDouble()/2).dp.toPx()),
+                                    center = Offset(-compareRad1+(widthToPX/2)-100f,(diameter.value.toDouble()/2).dp.toPx()),
                                     style = Fill,
                                 )
                                 /** окружность задней кривизны */
                                 drawCircle(
                                     color = Color.White,
                                     radius = compareRad2,
-                                    center = Offset( -compareRad2+(widthToPX/2)-(compareThicknessCenter.value.toFloat()*convertMMtoPX)-30f,(diameter.value.toDouble()/2).dp.toPx()),
+                                    center = Offset( -compareRad2+(widthToPX/2)-(compareThicknessCenter.value.toFloat()*convertMMtoPX)-100f,(diameter.value.toDouble()/2).dp.toPx()),
                                     style = Fill,
                                 )
+                                if (compareRad2 < (widthToPX/2)-(compareThicknessCenter.value.toFloat()*convertMMtoPX)-100f){
+                                    drawRect(
+                                        topLeft = Offset(0f,0f),
+                                        size = Size((widthToPX/2)-(compareThicknessCenter.value.toFloat()*convertMMtoPX)-100f-compareRad2,diameter.value.toDouble().dp.toPx()),
+                                        color = Color.White
+                                    )
+                                }
+
                             }
                         }
-                        Text(text = "$refraction D")
-                        Text(text = "Индекс: ${compareIndex.value}")
-                        Text(text = "Толщина центра ${compareThicknessCenter.value} мм")
-                        Text(text = "Толщина края ${compareThicknessEdge.value} мм")
+                        Text(text = "$refraction D", fontWeight = FontWeight.Bold)
+                        Text(text = "Индекс: ${compareIndex.value}", fontWeight = FontWeight.Bold)
+                        Text(text = "Толщина центра ${compareThicknessCenter.value} мм",
+                            fontWeight = FontWeight.Bold)
+                        Text(text = "Толщина края ${compareThicknessEdge.value} мм", fontWeight = FontWeight.Bold)
                     }
                 }
             }
