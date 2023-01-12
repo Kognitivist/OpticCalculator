@@ -1,7 +1,9 @@
 package com.example.opticcalculator
 
+import android.app.AppComponentFactory
 import android.app.Application
 import android.content.Context
+import android.inputmethodservice.InputMethodService
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -26,6 +28,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.AppOpsManagerCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.opticcalculator.navigation.OCNavHost
@@ -34,7 +37,7 @@ import com.example.opticcalculator.screens.StartScreen
 
 class MainActivity : ComponentActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?,) {
         super.onCreate(savedInstanceState)
         setContent {
             val context = LocalContext.current
@@ -42,8 +45,6 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
 
             OCNavHost(mViewModel = mViewModel, navController = navController, this)
-
-
         }
     }
 }

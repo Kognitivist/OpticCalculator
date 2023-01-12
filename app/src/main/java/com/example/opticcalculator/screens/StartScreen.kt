@@ -3,10 +3,10 @@ package com.example.opticcalculator.screens
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import android.util.TypedValue
+import android.widget.ImageButton
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -63,6 +64,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
     val coroutineScope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
     val openDialog = remember { mutableStateOf(false) }
+
 
     val checkedStateBC = remember { mutableStateOf(false) }
     val checkedStateNT = remember { mutableStateOf(false) }
@@ -103,6 +105,16 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
         "nominalThickness" to nominalThickness,
         "diameter" to diameter, "calculatedDiameter" to calculatedDiameter,
         "thicknessCenter" to thicknessCenter, "thicknessEdge" to thicknessEdge)
+
+    val enabledImage = remember { mutableStateOf(false) }
+
+    val convertDPtoPX = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP, 1f,
+        context.resources.displayMetrics
+    )
+
+    val widthToDP = context.resources.displayMetrics.widthPixels*(1/convertDPtoPX)
+    val heightToDP = context.resources.displayMetrics.heightPixels*(1/convertDPtoPX)
 
     viewModel.arguments.observe(lifecycleOwner){
         if (viewModel.arguments.value != null){
@@ -466,20 +478,17 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                 .padding(top = 10.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically){
-                Button(onClick = {
-                    navController.navigate(route = NavRoute.CanvasScreen.route)
-                },
-                    shape = RoundedCornerShape(100),
-                    enabled = viewModel.arguments.value != null
-                            && viewModel.arguments.value!!["thicknessCenter"]!!.value.isNotEmpty()
-                            && !isErrorBasicCurved(basicCurved.value, refraction.value)
-                            && !isErrorDiameter(diameter.value, calculatedDiameter.value)
-                            && !isErrorIndex(index.value)
-                            && !isErrorCalculatedDiameter(calculatedDiameter.value)
-                            && !isErrorRefraction(refraction.value)
-                            && !isErrorNominalThickness(nominalThickness.value)) {
-                    Text(text = "Canvas")
-                }
+                Image(
+                    imageVector = if (enabledImage.value){
+                        ImageVector.vectorResource(R.drawable.logoenabled)}
+                        else{ImageVector.vectorResource(R.drawable.logodisabled)},
+                    contentDescription = "",
+                    modifier = Modifier
+                        .clickable(
+                            enabled = enabledImage.value
+                        ) { navController.navigate(route = NavRoute.CanvasScreen.route) }
+                        .size(80.dp)
+                )
             }
             /**Толщина по центру*/
             Row(modifier = Modifier
@@ -522,5 +531,16 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             }
         )
     }
+    if(viewModel.arguments.value != null
+        && viewModel.arguments.value!!["thicknessCenter"]!!.value.isNotEmpty()
+        && !isErrorBasicCurved(basicCurved.value, refraction.value)
+        && !isErrorDiameter(diameter.value, calculatedDiameter.value)
+        && !isErrorIndex(index.value)
+        && !isErrorCalculatedDiameter(calculatedDiameter.value)
+        && !isErrorRefraction(refraction.value)
+        && !isErrorNominalThickness(nominalThickness.value)){
+        enabledImage.value = true
+    }
+    else{enabledImage.value = false}
 }
 

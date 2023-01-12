@@ -82,5 +82,6 @@ fun isErrorDiameter(value1: String, value2:String):Boolean{
         true
     }
 }
+
 fun convertPixelsToDp(context: Context, pixels: Float) =
     pixels / context.resources.displayMetrics.density

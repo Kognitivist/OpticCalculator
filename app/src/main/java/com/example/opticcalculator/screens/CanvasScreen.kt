@@ -159,21 +159,6 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                         Text(text = "Выбрать индекс")
                     }
                 }
-                /*Row(modifier = Modifier
-                    .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically){
-                    RadioButton(
-                        selected = state.value,
-                        onClick = { state.value = true }
-                    )
-                    Text(text = "Сферическая ОЛ")
-                    RadioButton(
-                        selected = !state.value,
-                        onClick = { state.value = false }
-                    )
-                    Text(text = "Асферическая ОЛ")
-                }*/
             }
             /** canvas OL*/
             Row(modifier = Modifier

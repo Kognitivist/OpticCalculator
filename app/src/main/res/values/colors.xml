@@ -10,5 +10,5 @@
     <color name="statusBarColor">#FFC15B</color>
     <color name="BackgroundColor_1">#EEF5FF</color>
     <color name="BackgroundColor_2">#E0EDFF</color>
-
+    <color name="darkGrey">#1E1E1E</color>
 </resources>
