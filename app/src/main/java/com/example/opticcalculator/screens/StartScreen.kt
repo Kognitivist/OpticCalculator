@@ -62,6 +62,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
     val keyboardController = LocalSoftwareKeyboardController.current
     val coroutineScope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
+    val openDialog = remember { mutableStateOf(false) }
 
     val checkedStateBC = remember { mutableStateOf(false) }
     val checkedStateNT = remember { mutableStateOf(false) }
@@ -121,13 +122,13 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
         drawerContent = {
             LazyColumn(modifier = Modifier
                 .fillMaxSize()
-                .background(com.example.opticcalculator.ui.theme.BackgroundColor_1),
+                .background(BackgroundColor_1),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally) {
                 items(viewModel.indexList){
                         n -> Card(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp)
+                    .fillMaxWidth(0.5f)
+                    .padding(top = 24.dp)
                     .clickable {
                         viewModel.arguments.value = argsForCalc
                         viewModel.arguments.value!!["index"]!!.value = n
@@ -136,11 +137,12 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                         coroutineScope.launch { scaffoldState.drawerState.close() }
                         focusManager.moveFocus(FocusDirection.Down)
                     },
-                    backgroundColor = com.example.opticcalculator.ui.theme.BackgroundColor_2,
-                    shape = RoundedCornerShape(topEnd = 20.dp, bottomEnd = 20.dp),
-                    border = BorderStroke(5.dp, com.example.opticcalculator.ui.theme.Border)
+                    backgroundColor = BackgroundColor_Card,
+                    shape = RoundedCornerShape(20),
                 ) {
-                    Text(text = n, textAlign = TextAlign.Center, fontSize = 25.sp)
+                    Text(text = n, textAlign = TextAlign.Center,
+                        fontSize = 22.sp, color = BackgroundColor_1,
+                        modifier = Modifier.padding(5.dp))
                 }
                 }
             }
@@ -171,6 +173,10 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                 Row(modifier = Modifier.width(40.dp)){}
                 OutlinedTextField(
                     value = refraction.value,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = FocusedBorderColor,
+                        focusedLabelColor = FocusedLabelColor
+                    ),
                     textStyle = TextStyle(fontSize=13.sp),
                     onValueChange = {
                         refraction.value = format(it)
@@ -225,6 +231,10 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                         }),
                     singleLine = true,
                     placeholder = { Text(text = "Введите значение") },
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = FocusedBorderColor,
+                        focusedLabelColor = FocusedLabelColor
+                    ),
                     isError = isErrorCalculatedDiameter(calculatedDiameter.value))
                 IconButton(onClick = {
                     Toast.makeText(context, """Минимальный диаметр линзы проходящей в оправу,
@@ -269,6 +279,10 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                     label = { Text(text = "Индекс") },
                     singleLine = true,
                     placeholder = { Text(text = "Выберите значение") },
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = FocusedBorderColor,
+                        focusedLabelColor = FocusedLabelColor
+                    ),
                     isError = isErrorIndex(index.value))
                 IconButton(onClick = {
                     Toast.makeText(context, "коэффициент преломления материала",
@@ -307,6 +321,10 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                         }),
                     singleLine = true,
                     placeholder = { Text(text = "Введите значение") },
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = FocusedBorderColor,
+                        focusedLabelColor = FocusedLabelColor
+                    ),
                     isError = isErrorDiameter(diameter.value, calculatedDiameter.value)
                 )
                 IconButton(onClick = {
@@ -352,6 +370,10 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                         }),
                     singleLine = true,
                     placeholder = { Text(text = "Введите значение") },
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = FocusedBorderColor,
+                        focusedLabelColor = FocusedLabelColor
+                    ),
                     isError = isErrorBasicCurved(basicCurved.value, refraction.value) )
                 IconButton(onClick = {
                     Toast.makeText(context, """Кривизна передней поверхности ОЛ.
@@ -398,6 +420,10 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                         onDone = {keyboardController?.hide()}),
                     singleLine = true,
                     placeholder = { Text(text = "Введите значение") },
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = FocusedBorderColor,
+                        focusedLabelColor = FocusedLabelColor
+                    ),
                     isError = isErrorNominalThickness(nominalThickness.value))
                 IconButton(onClick = {
                     Toast.makeText(context, """Минимальная толщина заготовки.
@@ -418,7 +444,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically){
                 Button(onClick = {
-                    viewModel.calculate(context ,argsForCalc)
+                    viewModel.calculate(context ,argsForCalc, openDialog)
                     viewModel.arguments.value = argsForCalc
                     keyboardController?.hide()
                 },
@@ -430,7 +456,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                             && !isErrorRefraction(refraction.value)
                             && !isErrorNominalThickness(nominalThickness.value),
                     colors = ButtonDefaults.buttonColors(backgroundColor = ButtonColor,
-                        contentColor = Color.DarkGray)) {
+                        contentColor = BackgroundColor_1)) {
                     Text(text = "Результат")
                 }
             }
@@ -474,6 +500,27 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                 Text(text = thicknessEdge.value, fontSize = 20.sp)
             }
         }
+    }
+    if (openDialog.value) {
+        AlertDialog(
+            onDismissRequest = {
+                openDialog.value = false
+            },
+            title = { Text(text = "Внимание!") },
+            text = { Text("""При данных параметрах невозможно изготовить линзу в расчетном диаметре.
+                    |Линза не пройдет в оправу.
+                """.trimMargin()) },
+            buttons = {
+                Button(
+                    onClick = { openDialog.value = false },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = ButtonColor,
+                        contentColor = BackgroundColor_1),
+                    shape = RoundedCornerShape(20)
+                ) {
+                    Text("OK", fontSize = 22.sp)
+                }
+            }
+        )
     }
 }
 

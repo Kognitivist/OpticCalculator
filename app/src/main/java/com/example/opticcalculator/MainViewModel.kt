@@ -2,14 +2,11 @@ package com.example.opticcalculator
 
 import android.app.Application
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlin.math.pow
 
 class MainViewModel (application: Application): AndroidViewModel(application) {
@@ -20,7 +17,7 @@ class MainViewModel (application: Application): AndroidViewModel(application) {
     val arguments: MutableLiveData<Map<String, MutableState<String>>> by lazy {
         MutableLiveData<Map<String, MutableState<String>>>()
     }
-    fun calculate(context: Context, args:Map<String, MutableState<String>>) {
+    fun calculate(context: Context, args:Map<String, MutableState<String>>,  openDialog: MutableState<Boolean>) {
 
         val index = args["index"]!!.value.toDouble()
         val basicCurved = args["basicCurved"]!!.value.toDouble()
@@ -37,19 +34,20 @@ class MainViewModel (application: Application): AndroidViewModel(application) {
 
         if (fBC < diameter/2 || sBC < diameter/2){
             if (fBC >= sBC){
-                args["diameter"]!!.value = (sBC*1.1).toString()
-                diameter = sBC*1.1 }
-            else {args["diameter"]!!.value = (fBC*1.1).toString()
-                diameter = fBC*1.1}
+                args["diameter"]!!.value = (sBC*2).toString()
+                diameter = sBC*2 }
+            else {args["diameter"]!!.value = (fBC*2).toString()
+                diameter = fBC*2}
             Toast.makeText(context, "При данных параметрах диаметр уменьшен до максимально возможного", Toast.LENGTH_LONG)
                 .show()
         }
         if (fBC < calculatedDiameter/2 || sBC < calculatedDiameter/2){
             if (fBC >= sBC){
-                args["calculatedDiameter"]!!.value = (sBC*1.1).toString()
-                calculatedDiameter = sBC*1.1}
-            else {args["calculatedDiameter"]!!.value = (fBC*1.1).toString()
-                calculatedDiameter = fBC*1.1}
+                args["calculatedDiameter"]!!.value = (sBC*2).toString()
+                calculatedDiameter = sBC*2}
+            else {args["calculatedDiameter"]!!.value = (fBC*2).toString()
+                calculatedDiameter = fBC*2}
+            openDialog.value = true
         }
 
         val firstCurvature =
@@ -72,7 +70,12 @@ class MainViewModel (application: Application): AndroidViewModel(application) {
             thicknessEdge.value = "${round(nominalThickness - firstCurvature + secondCurvature)}"
         }
     }
-    fun compareCalculate(viewModel: MainViewModel, indexOL:String, compareThicknessCenter: MutableState<String>, compareThicknessEdge: MutableState<String>, type:Boolean = true){
+    fun compareCalculate(viewModel: MainViewModel, indexOL:String,
+                         compareThicknessCenter: MutableState<String>,
+                         compareThicknessEdge: MutableState<String>,
+                         compareCalculatedDiameter: MutableState<String>,
+                         compareDiameter: MutableState<String>,
+                         type:Boolean = true){
         val index = indexOL.toDouble()
         val basicCurved = viewModel.arguments.value!!["basicCurved"]!!.value.toDouble()
         val refraction = viewModel.arguments.value!!["refraction"]!!.value.toDouble()
@@ -83,17 +86,28 @@ class MainViewModel (application: Application): AndroidViewModel(application) {
         val fBC = round((index-1)*1000/basicCurved)
         val sBC = round((index-1)*1000/(basicCurved-refraction))
 
+        if (fBC < diameter/2 || sBC < diameter/2){
+            if (fBC >= sBC){ compareDiameter.value = (sBC*2).toString()}
+            else {compareDiameter.value = (fBC*2).toString()}
+            Toast.makeText(context, "При данных параметрах диаметр уменьшен до максимально возможного", Toast.LENGTH_LONG)
+                .show()
+        }
+        if (fBC < calculatedDiameter/2 || sBC < calculatedDiameter/2){
+            if (fBC >= sBC){compareCalculatedDiameter.value = (sBC*2).toString()}
+            else {compareCalculatedDiameter.value = (fBC*2).toString()}
+
+        }
 
         val firstCurvature =
-            fBC - round(((round(fBC.pow(2)))-(round(0.25*(diameter.pow(2))))).pow(1/2.toDouble()))
+            fBC - round(((round(fBC.pow(2)))-(round(0.25*(compareDiameter.value.toDouble().pow(2))))).pow(1/2.toDouble()))
 
         val secondCurvature =
-            sBC - round(((round(sBC.pow(2)))-(round(0.25*(diameter.pow(2))))).pow(1/2.toDouble()))
+            sBC - round(((round(sBC.pow(2)))-(round(0.25*(compareDiameter.value.toDouble().pow(2))))).pow(1/2.toDouble()))
 
         val altFirstCurvature =
-            fBC - round(((round(fBC.pow(2)))-(round(0.25*(calculatedDiameter.pow(2))))).pow(1/2.toDouble()))
+            fBC - round(((round(fBC.pow(2)))-(round(0.25*(compareCalculatedDiameter.value.toDouble().pow(2))))).pow(1/2.toDouble()))
         val altSecondCurvature =
-            sBC - round(((round(sBC.pow(2)))-(round(0.25*(calculatedDiameter.pow(2))))).pow(1/2.toDouble()))
+            sBC - round(((round(sBC.pow(2)))-(round(0.25*(compareCalculatedDiameter.value.toDouble().pow(2))))).pow(1/2.toDouble()))
 
         if (refraction >= 0){
             compareThicknessCenter.value = "${round(nominalThickness + firstCurvature - secondCurvature)}"
