@@ -1,7 +1,9 @@
 package com.example.opticcalculator.screens
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.util.TypedValue
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -78,6 +80,12 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
     val coroutineScope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
     val openDialog = remember { mutableStateOf(false) }
+    val offset = remember { mutableStateOf(100f) }
+    val widthCanvas = remember { mutableStateOf(widthToDP) }
+    if (checkedState.value) {
+        widthCanvas.value = (widthToDP / 2)}
+    else{
+        widthCanvas.value = widthToDP}
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -107,6 +115,14 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                         coroutineScope.launch { scaffoldState.drawerState.close() }
                         if (compareCalculatedDiameter.value.toDouble() != viewModel.arguments.value!!["calculatedDiameter"]!!.value.toDouble()) {
                             openDialog.value = true
+                        }
+                        when(refraction.toFloat()){
+                            in 10f..15f -> offset.value = 20f
+                            in 6f..9.99f -> offset.value = 40f
+                            in -10f..-15f -> offset.value = 20f
+                            in -6f..-9.99f -> offset.value = 40f
+                            in 0f..5.99f -> offset.value = 100f
+                            in 0f..-5.99f -> offset.value = 100f
                         }
                     },
                     backgroundColor = BackgroundColor_Card,
@@ -172,7 +188,7 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                     horizontalAlignment = Alignment.CenterHorizontally) {
                     Card(
                         modifier = Modifier
-                            .width((widthToDP / 2).dp)
+                            .width(widthCanvas.value.dp)
                             .height(calculatedDiameter.value.toDouble().dp),
                         elevation = 0.dp
                     ) {
@@ -183,20 +199,20 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                             /** окружность передней кривизны */
                             drawCircle(color = ColorOfLens,
                                 radius = rad1,
-                                center = Offset(-rad1+(widthToPX/2)-100f,(calculatedDiameter.value.toDouble()/2).dp.toPx()),
+                                center = Offset(-rad1+(widthCanvas.value*convertDPtoPX)-offset.value,(calculatedDiameter.value.toDouble()/2).dp.toPx()),
                                 style = Fill,
                             )
                             /** окружность задней кривизны */
                             drawCircle(
                                 color = BackgroundColor_1,
                                 radius = rad2,
-                                center = Offset(-rad2+(widthToPX/2)-(thicknessCenter)-100f,(calculatedDiameter.value.toDouble()/2).dp.toPx()),
+                                center = Offset(-rad2+(widthCanvas.value*convertDPtoPX)-(thicknessCenter)-offset.value,(calculatedDiameter.value.toDouble()/2).dp.toPx()),
                                 style = Fill,
                             )
-                            if (rad2 < (widthToPX/2)-(thicknessCenter)-100f){
+                            if (rad2 < (widthCanvas.value*convertDPtoPX)-(thicknessCenter)-offset.value){
                                 drawRect(
                                     topLeft = Offset(0f,0f),
-                                    size = Size(-rad2+(widthToPX/2)-(thicknessCenter)-100f,calculatedDiameter.value.toDouble().dp.toPx()),
+                                    size = Size(-rad2+(widthCanvas.value*convertDPtoPX)-(thicknessCenter)-offset.value,calculatedDiameter.value.toDouble().dp.toPx()),
                                     color = BackgroundColor_1
                                 )
                             }
@@ -225,13 +241,14 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                                 .height((compareCalculatedDiameter.value.toDouble() * convertMMtoDP).dp),
                             elevation = 0.dp
                         ) {
+                            Log.d("compareCalculatedDiameter", compareCalculatedDiameter.value)
                             Canvas(modifier = Modifier
                                 .fillMaxSize()
                                 .background(BackgroundColor_1)){
                                 /** окружность передней кривизны */
                                 drawCircle(color = ColorOfLens,
                                     radius = compareRad1,
-                                    center = Offset(-compareRad1+(widthToPX/2)-100f,
+                                    center = Offset(-compareRad1+(widthToPX/2)-offset.value,
                                         (compareCalculatedDiameter.value.toDouble() * convertMMtoDP/2).dp.toPx()),
                                     style = Fill,
                                 )
@@ -239,14 +256,15 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                                 drawCircle(
                                     color = BackgroundColor_1,
                                     radius = compareRad2,
-                                    center = Offset( -compareRad2+(widthToPX/2)-(compareThicknessCenter.value.toFloat()*convertMMtoPX)-100f,
+                                    center = Offset( -compareRad2+(widthToPX/2)-(compareThicknessCenter.value.toFloat()*convertMMtoPX)-offset.value,
                                         (compareCalculatedDiameter.value.toDouble() * convertMMtoDP/2).dp.toPx()),
                                     style = Fill,
                                 )
-                                if (compareRad2 < (widthToPX/2)-(compareThicknessCenter.value.toFloat()*convertMMtoPX)-100f){
+                                Log.d("offset", "${(widthToPX/2)-(compareThicknessCenter.value.toFloat()*convertMMtoPX)-offset.value}")
+                                if (compareRad2 < (widthToPX/2)-(compareThicknessCenter.value.toFloat()*convertMMtoPX)-offset.value){
                                     drawRect(
                                         topLeft = Offset(0f,0f),
-                                        size = Size((widthToPX/2)-(compareThicknessCenter.value.toFloat()*convertMMtoPX)-100f-compareRad2,calculatedDiameter.value.toDouble().dp.toPx()),
+                                        size = Size((widthToPX/2)-(compareThicknessCenter.value.toFloat()*convertMMtoPX)-offset.value-compareRad2,calculatedDiameter.value.toDouble().dp.toPx()),
                                         color = BackgroundColor_1
                                     )
                                 }
