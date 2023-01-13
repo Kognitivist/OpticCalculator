@@ -170,7 +170,8 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             /**Рассчетные параметры заголовок*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 20.dp),
+                .padding(top = 20.dp)
+                .weight(weightHeadingText),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "Рассчетные параметры", fontWeight = FontWeight.Bold)
@@ -179,10 +180,10 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             /**Рефракция*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 10.dp),
+                .weight(weightRowOLTF),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
-                Row(modifier = Modifier.width(40.dp)){}
+                Row(modifier = Modifier.weight(weightEdgesOLTF)){}
                 OutlinedTextField(
                     value = refraction.value,
                     colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -195,9 +196,11 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                         viewModel.arguments.value = argsForCalc
                         viewModel.arguments.value!!["thicknessCenter"]!!.value = ""
                         viewModel.arguments.value!!["thicknessEdge"]!!.value = ""},
-                    modifier = Modifier.onFocusChanged {
-                        isNumber(refraction)
-                    },
+                    modifier = Modifier
+                        .onFocusChanged {
+                            isNumber(refraction)
+                        }
+                        .weight(weightOutlinedTextField),
                     label = { Text ( text = "Рефракция" ) },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
@@ -209,30 +212,36 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                     singleLine = true,
                     placeholder = { Text(text = "Введите значение") },
                     isError = isErrorRefraction(refraction.value))
-                IconButton(onClick = {
-                    Toast.makeText(context, "Преломляющая сила линзы от -15 до +15", Toast.LENGTH_LONG)
-                        .show()
-                }) {
-                    Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_question_mark_24),
-                        contentDescription = "")
+                Row(modifier = Modifier
+                    .weight(weightEdgesOLTF)) {
+                    IconButton(onClick = {
+                        Toast.makeText(context, "Преломляющая сила линзы от -15 до +15", Toast.LENGTH_LONG)
+                            .show()
+                    },
+                        ) {
+                        Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_question_mark_24),
+                            contentDescription = "")
+                    }
                 }
             }
             /**Рассчетный диаметр*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 0.dp),
+                .weight(weightRowOLTF),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
-                Row(modifier = Modifier.width(40.dp)){}
+                Row(modifier = Modifier.weight(weightEdgesOLTF)){}
                 OutlinedTextField(value = calculatedDiameter.value,
                     textStyle = TextStyle(fontSize = 13.sp),
                     onValueChange = { calculatedDiameter.value = format(it)
                         viewModel.arguments.value = argsForCalc
                         viewModel.arguments.value!!["thicknessCenter"]!!.value = ""
                         viewModel.arguments.value!!["thicknessEdge"]!!.value = ""},
-                    modifier = Modifier.onFocusChanged {
-                        isNumber(calculatedDiameter)
-                    },
+                    modifier = Modifier
+                        .onFocusChanged {
+                            isNumber(calculatedDiameter)
+                        }
+                        .weight(weightOutlinedTextField),
                     label = { Text(text = "Рассчетный диаметр") },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
@@ -248,21 +257,23 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                         focusedLabelColor = FocusedLabelColor
                     ),
                     isError = isErrorCalculatedDiameter(calculatedDiameter.value))
-                IconButton(onClick = {
-                    Toast.makeText(context, """Минимальный диаметр линзы проходящей в оправу,
+                Row(modifier = Modifier.weight(weightEdgesOLTF)) {
+                    IconButton(onClick = {
+                        Toast.makeText(context, """Минимальный диаметр линзы проходящей в оправу,
                         |не может быть больше диаметра заготовки (до 90мм)
                     """.trimMargin(),
-                        Toast.LENGTH_LONG)
-                        .show()
-                }) {
-                    Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_question_mark_24),
-                        contentDescription = "")
+                            Toast.LENGTH_LONG)
+                            .show()
+                    } ) {
+                        Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_question_mark_24),
+                            contentDescription = "")
+                    }
                 }
             }
             /**Параметры заготовки заголовок*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 20.dp),
+                .weight(weightHeadingText),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "Параметры заготовки", fontWeight = FontWeight.Bold)
@@ -272,21 +283,23 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             /**Индекс*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 10.dp),
+                .weight(weightRowOLTF),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
-                Row(modifier = Modifier.width(40.dp)){}
+                Row(modifier = Modifier.weight(weightEdgesOLTF)){}
                 OutlinedTextField(value = index.value,
                     textStyle = TextStyle(fontSize = 13.sp),
                     onValueChange = { index.value = format(it)
                         viewModel.arguments.value = argsForCalc
                         viewModel.arguments.value!!["thicknessCenter"]!!.value = ""
                         viewModel.arguments.value!!["thicknessEdge"]!!.value = ""},
-                    modifier = Modifier.onFocusChanged {
-                        if (it.isFocused){
-                            coroutineScope.launch { scaffoldState.drawerState.open() }
+                    modifier = Modifier
+                        .onFocusChanged {
+                            if (it.isFocused) {
+                                coroutineScope.launch { scaffoldState.drawerState.open() }
+                            }
                         }
-                    },
+                        .weight(weightOutlinedTextField),
                     readOnly = true,
                     label = { Text(text = "Индекс") },
                     singleLine = true,
@@ -296,23 +309,25 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                         focusedLabelColor = FocusedLabelColor
                     ),
                     isError = isErrorIndex(index.value))
-                IconButton(onClick = {
-                    Toast.makeText(context, "коэффициент преломления материала",
-                        Toast.LENGTH_LONG)
-                        .show()
-                }) {
-                    Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_question_mark_24),
-                        contentDescription = "")
+                Row(modifier = Modifier.weight(weightEdgesOLTF)) {
+                    IconButton(onClick = {
+                        Toast.makeText(context, "коэффициент преломления материала",
+                            Toast.LENGTH_LONG)
+                            .show()
+                    }) {
+                        Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_question_mark_24),
+                            contentDescription = "")
+                    }
                 }
             }
 
             /**Диаметр*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 0.dp),
+                .weight(weightRowOLTF),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
-                Row(modifier = Modifier.width(40.dp)){}
+                Row(modifier = Modifier.weight(weightEdgesOLTF)){}
                 OutlinedTextField(
                     value = diameter.value,
                     textStyle = TextStyle(fontSize = 13.sp),
@@ -320,9 +335,11 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                         viewModel.arguments.value = argsForCalc
                         viewModel.arguments.value!!["thicknessCenter"]!!.value = ""
                         viewModel.arguments.value!!["thicknessEdge"]!!.value = ""},
-                    modifier = Modifier.onFocusChanged {
-                        isNumber(diameter)
-                    },
+                    modifier = Modifier
+                        .onFocusChanged {
+                            isNumber(diameter)
+                        }
+                        .weight(weightOutlinedTextField),
                     label = { Text(text = "Диаметр") },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
@@ -339,21 +356,23 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                     ),
                     isError = isErrorDiameter(diameter.value, calculatedDiameter.value)
                 )
-                IconButton(onClick = {
-                    Toast.makeText(context, "Диаметр заказанной заготовки, до 90мм", Toast.LENGTH_LONG)
-                        .show()
-                }) {
-                    Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_question_mark_24),
-                        contentDescription = "")
+                Row(modifier = Modifier.weight(weightEdgesOLTF)) {
+                    IconButton(onClick = {
+                        Toast.makeText(context, "Диаметр заказанной заготовки, до 90мм", Toast.LENGTH_LONG)
+                            .show()
+                    }) {
+                        Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_question_mark_24),
+                            contentDescription = "")
+                    }
                 }
             }
             /**БК*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 0.dp),
+                .weight(weightRowOLTF),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
-                Row(modifier = Modifier.width(40.dp)) {
+                Row(modifier = Modifier.weight(weightEdgesOLTF)) {
                     Checkbox(
                         checked = checkedStateBC.value,
                         onCheckedChange = { checkedStateBC.value = it },
@@ -369,9 +388,11 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                         viewModel.arguments.value = argsForCalc
                         viewModel.arguments.value!!["thicknessCenter"]!!.value = ""
                         viewModel.arguments.value!!["thicknessEdge"]!!.value = ""},
-                    modifier = Modifier.onFocusChanged {
-                        isNumber(basicCurved)
-                    },
+                    modifier = Modifier
+                        .onFocusChanged {
+                            isNumber(basicCurved)
+                        }
+                        .weight(weightOutlinedTextField),
                     label = { Text(text = "Базовая кривизна") },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
@@ -387,26 +408,27 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                         focusedLabelColor = FocusedLabelColor
                     ),
                     isError = isErrorBasicCurved(basicCurved.value, refraction.value) )
-                IconButton(onClick = {
-                    Toast.makeText(context, """Кривизна передней поверхности ОЛ.
+                Row(modifier = Modifier.weight(weightEdgesOLTF)) {
+                    IconButton(onClick = {
+                        Toast.makeText(context, """Кривизна передней поверхности ОЛ.
                     |Не более 16 диоптрий
                     |Если неизвестно, отметь галочку "значение по умолчанию"
                 """.trimMargin(),
-                        Toast.LENGTH_LONG)
-                        .show()
-                }) {
-                    Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_question_mark_24),
-                        contentDescription = "")
+                            Toast.LENGTH_LONG)
+                            .show()
+                    }) {
+                        Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_question_mark_24),
+                            contentDescription = "")
+                    }
                 }
-
             }
             /**Номинальная толщина*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 0.dp),
+                .weight(weightRowOLTF),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
-                Row(modifier = Modifier.width(40.dp)){
+                Row(modifier = Modifier.weight(weightEdgesOLTF)){
                     Checkbox(
                         checked = checkedStateNT.value,
                         onCheckedChange = { checkedStateNT.value = it },
@@ -421,9 +443,11 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                         viewModel.arguments.value = argsForCalc
                         viewModel.arguments.value!!["thicknessCenter"]!!.value = ""
                         viewModel.arguments.value!!["thicknessEdge"]!!.value = ""},
-                    modifier = Modifier.onFocusChanged {
-                        isNumber(nominalThickness)
-                    },
+                    modifier = Modifier
+                        .onFocusChanged {
+                            isNumber(nominalThickness)
+                        }
+                        .weight(weightOutlinedTextField),
                     label = { Text(text = "Номинальная толщина") },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
@@ -437,22 +461,25 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                         focusedLabelColor = FocusedLabelColor
                     ),
                     isError = isErrorNominalThickness(nominalThickness.value))
-                IconButton(onClick = {
-                    Toast.makeText(context, """Минимальная толщина заготовки.
+                Row(modifier = Modifier.weight(weightEdgesOLTF)) {
+                    IconButton(onClick = {
+                        Toast.makeText(context, """Минимальная толщина заготовки.
                     |От 0 до 3мм
                     |Если неизвестно, ставьте галочку "значение по умолчанию"
                 """.trimMargin(),
-                        Toast.LENGTH_LONG)
-                        .show()
-                }) {
-                    Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_question_mark_24),
-                        contentDescription = "")
+                            Toast.LENGTH_LONG)
+                            .show()
+                    }) {
+                        Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_question_mark_24),
+                            contentDescription = "")
+                    }
                 }
             }
             /**Кнопка "результат"*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 10.dp),
+                .padding(top = 10.dp)
+                .weight(weightButton),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically){
                 Button(onClick = {
@@ -475,7 +502,8 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             /**Кнопка перехода на экран Canvas*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 10.dp),
+                .padding(top = 10.dp)
+                .weight(weightIconButton),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically){
                 Image(
@@ -487,13 +515,13 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                         .clickable(
                             enabled = enabledImage.value
                         ) { navController.navigate(route = NavRoute.CanvasScreen.route) }
-                        .size(80.dp)
                 )
             }
             /**Толщина по центру*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 30.dp),
+                .padding(top = 20.dp)
+                .weight(weightInfoText),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "Толщина по центру: ")
@@ -502,7 +530,8 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             /**Толщина по краю*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 20.dp),
+                .padding(bottom = 20.dp)
+                .weight(weightInfoText),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "Толщина по краю: ")
