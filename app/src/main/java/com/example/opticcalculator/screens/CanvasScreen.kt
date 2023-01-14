@@ -281,7 +281,7 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                     }
                     Column(
                         verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.Start,
+                        horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.width(widthCanvas.value.dp)) {
                         Text(text = "$refraction D", fontWeight = FontWeight.Bold)
                         Text(text = "Индекс: $index", fontWeight = FontWeight.Bold)
@@ -335,7 +335,7 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                         }
                         Column(
                             verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.Start,
+                            horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier.width((widthToDP / 2).dp)) {
                             Text(text = "$refraction D", fontWeight = FontWeight.Bold)
                             Text(text = "Индекс: ${compareIndex.value}", fontWeight = FontWeight.Bold)

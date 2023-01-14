@@ -165,7 +165,8 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             .background(com.example.opticcalculator.ui.theme.BackgroundColor_1)
     ) {
         Column(modifier = Modifier
-            .fillMaxSize(1f).verticalScroll(rememberScrollState())
+            .fillMaxSize(1f)
+            .verticalScroll(rememberScrollState())
             .background(com.example.opticcalculator.ui.theme.BackgroundColor_1),
             verticalArrangement = Arrangement.SpaceBetween) {
             /**Рассчетные параметры заголовок*/
@@ -505,16 +506,21 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                 .weight(weightIconButton),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically){
-                Image(
-                    imageVector = if (enabledImage.value){
-                        ImageVector.vectorResource(R.drawable.logoenabled)}
+                Card(elevation = 5.dp,
+                    backgroundColor = BackgroundColor_1,
+                    shape = RoundedCornerShape(100) ) {
+                    Image(
+                        imageVector = if (enabledImage.value){
+                            ImageVector.vectorResource(R.drawable.logoenabled)}
                         else{ImageVector.vectorResource(R.drawable.logodisabled)},
-                    contentDescription = "",
-                    modifier = Modifier
-                        .clickable(
-                            enabled = enabledImage.value
-                        ) { navController.navigate(route = NavRoute.CanvasScreen.route) }
-                )
+                        contentDescription = "",
+                        modifier = Modifier
+                            .clickable(
+                                enabled = enabledImage.value
+                            ) { navController.navigate(route = NavRoute.CanvasScreen.route) }
+                    )
+                }
+
             }
             /**Толщина по центру*/
             Row(modifier = Modifier
