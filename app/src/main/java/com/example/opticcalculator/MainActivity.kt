@@ -33,6 +33,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.opticcalculator.navigation.OCNavHost
 import com.example.opticcalculator.screens.StartScreen
+import kotlin.math.acos
 
 
 class MainActivity : ComponentActivity() {

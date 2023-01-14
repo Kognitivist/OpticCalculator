@@ -34,13 +34,18 @@ import com.example.opticcalculator.MainViewModel
 import com.example.opticcalculator.round
 import com.example.opticcalculator.ui.theme.*
 import kotlinx.coroutines.launch
+import kotlin.math.acos
+import kotlin.math.sin
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lifecycleOwner: LifecycleOwner){
 
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val scaffoldState = rememberScaffoldState()
 
+    /** значения для конвертации измеряемых величин */
     val convertMMtoPX = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_MM, 1f,
         context.resources.displayMetrics
@@ -49,10 +54,12 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
         TypedValue.COMPLEX_UNIT_DIP, 1f,
         context.resources.displayMetrics
     )
+    val convertMMtoDP:Float = convertMMtoPX/convertDPtoPX
+    /** значения ширины экрана */
     val widthToPX = context.resources.displayMetrics.widthPixels
     val widthToDP = widthToPX*(1/convertDPtoPX)
-    val convertMMtoDP:Float = convertMMtoPX/convertDPtoPX
 
+    /** параметры рассчитаной линзы  */
     val calculatedDiameter = remember{
         mutableStateOf("${viewModel.arguments.value!!["calculatedDiameter"]!!.value.toDouble()*convertMMtoDP}")}
     val basicCurved = viewModel.arguments.value!!["basicCurved"]!!.value.toDouble()
@@ -61,7 +68,10 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
     val thicknessCenter = (viewModel.arguments.value!!["thicknessCenter"]!!.value.toFloat())*convertMMtoPX
     val fBC: Float = round((index-1)*1000/basicCurved).toFloat()
     val sBC: Float = round((index-1)*1000/(basicCurved-refraction)).toFloat()
+    val rad1 = fBC*convertMMtoPX
+    val rad2 = sBC*convertMMtoPX
 
+    /** параметры сравнительной линзы  */
     val compareIndex = remember { mutableStateOf(viewModel.arguments.value!!["index"]!!.value) }
     val compareThicknessCenter = remember { mutableStateOf(viewModel.arguments.value!!["thicknessCenter"]!!.value) }
     val compareThicknessEdge = remember { mutableStateOf(viewModel.arguments.value!!["thicknessEdge"]!!.value) }
@@ -69,23 +79,85 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
     val compareSBC: Float = round((compareIndex.value.toDouble()-1)*1000/(basicCurved-refraction)).toFloat()
     val compareCalculatedDiameter = remember { mutableStateOf(viewModel.arguments.value!!["calculatedDiameter"]!!.value) }
     val compareDiameter = remember { mutableStateOf(viewModel.arguments.value!!["diameter"]!!.value) }
-
     val compareRad1 = compareFBC*convertMMtoPX
     val compareRad2 = compareSBC*convertMMtoPX
 
-    val rad1 = fBC*convertMMtoPX
-    val rad2 = sBC*convertMMtoPX
-
+    /** статус свича для сравнения линз */
     val checkedState = remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
-    val scaffoldState = rememberScaffoldState()
+    /** алерт диалог в случае изменения параметров сравнительной линзы */
     val openDialog = remember { mutableStateOf(false) }
-    val offset = remember { mutableStateOf(100f) }
+    if (openDialog.value) {
+        AlertDialog(
+            onDismissRequest = {
+                openDialog.value = false
+            },
+            title = { Text(text = "Внимание!") },
+            text = { Text("""При данных параметрах невозможно изготовить линзу в расчетном диаметре.
+                    |Линза не пройдет в оправу.
+                """.trimMargin()) },
+            buttons = {
+                Button(
+                    onClick = { openDialog.value = false },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = ButtonColor,
+                        contentColor = BackgroundColor_1),
+                    shape = RoundedCornerShape(20)
+                ) {
+                    Text("OK", fontSize = 22.sp)
+                }
+            }
+        )
+    }
+
+    /** Контроль оффсета передней поверхности ОЛ от границ канвас */
+    val offset = remember { mutableStateOf((widthToPX/3).toFloat()) }
+    if (checkedState.value){
+        when (refraction.toFloat()) {
+            in 10f..15f -> offset.value = 20f
+            in 6f..9.99f -> offset.value = 40f
+            in -10f..-15f -> offset.value = 20f
+            in -6f..-9.99f -> offset.value = 40f
+            in 0f..5.99f -> offset.value = 100f
+            in 0f..-5.99f -> offset.value = 100f
+        }
+    }
+    /** Контроль ширины канвас рассчетной ОЛ */
     val widthCanvas = remember { mutableStateOf(widthToDP) }
     if (checkedState.value) {
         widthCanvas.value = (widthToDP / 2)}
     else{
         widthCanvas.value = widthToDP}
+    /**Параметры для рассчета допустимости отрисовки сравнительной ОЛ*/
+    val openDialog2 = remember { mutableStateOf(false) }
+    val ax = acos(1-(((widthToPX/2)-(compareThicknessCenter.value.toFloat()*convertMMtoPX)-offset.value)/convertMMtoPX)/(compareSBC))
+    val horda = 2*(compareSBC)* sin(ax)
+    if (horda.isNaN() || horda < widthToPX/convertMMtoPX){
+        if(checkedState.value){
+            AlertDialog(
+                onDismissRequest = {
+                    openDialog2.value = false
+                    checkedState.value = false
+                },
+                title = { Text(text = "Внимание!") },
+                text = { Text("""При данных параметрах невозможно корректно отрисовать лизну на вашем экране
+                """.trimMargin()) },
+                buttons = {
+                    Button(
+                        onClick = { openDialog2.value = false
+                            checkedState.value = false},
+                        colors = ButtonDefaults.buttonColors(backgroundColor = ButtonColor,
+                            contentColor = BackgroundColor_1),
+                        shape = RoundedCornerShape(20)
+                    ) {
+                        Text("OK", fontSize = 22.sp)
+                    }
+                }
+            )
+        }
+
+    }
+
+
+
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -115,14 +187,6 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                         coroutineScope.launch { scaffoldState.drawerState.close() }
                         if (compareCalculatedDiameter.value.toDouble() != viewModel.arguments.value!!["calculatedDiameter"]!!.value.toDouble()) {
                             openDialog.value = true
-                        }
-                        when(refraction.toFloat()){
-                            in 10f..15f -> offset.value = 20f
-                            in 6f..9.99f -> offset.value = 40f
-                            in -10f..-15f -> offset.value = 20f
-                            in -6f..-9.99f -> offset.value = 40f
-                            in 0f..5.99f -> offset.value = 100f
-                            in 0f..-5.99f -> offset.value = 100f
                         }
                     },
                     backgroundColor = BackgroundColor_Card,
@@ -301,27 +365,6 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                 }
             }
         }
-        if (openDialog.value) {
-            AlertDialog(
-                onDismissRequest = {
-                    openDialog.value = false
-                },
-                title = { Text(text = "Внимание!") },
-                text = { Text("""При данных параметрах невозможно изготовить линзу в расчетном диаметре.
-                    |Линза не пройдет в оправу.
-                """.trimMargin()) },
-                buttons = {
-                    Button(
-                        onClick = { openDialog.value = false },
-                        colors = ButtonDefaults.buttonColors(backgroundColor = ButtonColor,
-                            contentColor = BackgroundColor_1),
-                        shape = RoundedCornerShape(20)
-                    ) {
-                        Text("OK", fontSize = 22.sp)
-                    }
-                }
-            )
-        }
+        Log.d("horda","$horda")
     }
-
 }
