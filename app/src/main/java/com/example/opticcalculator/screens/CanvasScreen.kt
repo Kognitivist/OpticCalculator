@@ -4,10 +4,7 @@ import android.annotation.SuppressLint
 import android.util.Log
 import android.util.TypedValue
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -114,12 +111,12 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
         when (refraction.toFloat()) {
             in 10f..15f -> offset.value = 20f
             in 6f..9.99f -> offset.value = 40f
-            in -10f..-15f -> offset.value = 20f
-            in -6f..-9.99f -> offset.value = 40f
-            in 0f..5.99f -> offset.value = 100f
-            in 0f..-5.99f -> offset.value = 100f
+            in -15f..-10f -> offset.value = 20f
+            in -9.99f..-6f -> offset.value = 40f
+            in -5.99f..5.99f -> offset.value = 100f
         }
     }
+    else{ offset.value = (widthToPX/3).toFloat() }
     /** Контроль ширины канвас рассчетной ОЛ */
     val widthCanvas = remember { mutableStateOf(widthToDP) }
     if (checkedState.value) {
@@ -284,10 +281,11 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                     }
                     Column(
                         verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally) {
+                        horizontalAlignment = Alignment.Start,
+                        modifier = Modifier.width(widthCanvas.value.dp)) {
                         Text(text = "$refraction D", fontWeight = FontWeight.Bold)
                         Text(text = "Индекс: $index", fontWeight = FontWeight.Bold)
-                        Text(text = "Рассчетный диаметр: ${viewModel.arguments.value!!["calculatedDiameter"]!!.value} мм", fontWeight = FontWeight.Bold)
+                        Text(text = "Диаметр: ${viewModel.arguments.value!!["calculatedDiameter"]!!.value} мм", fontWeight = FontWeight.Bold)
                         Text(text = "Толщина центра ${viewModel.arguments.value!!["thicknessCenter"]!!.value} мм", fontWeight = FontWeight.Bold)
                         Text(text = "Толщина края ${viewModel.arguments.value!!["thicknessEdge"]!!.value} мм", fontWeight = FontWeight.Bold)
                     }
@@ -337,10 +335,11 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                         }
                         Column(
                             verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally) {
+                            horizontalAlignment = Alignment.Start,
+                            modifier = Modifier.width((widthToDP / 2).dp)) {
                             Text(text = "$refraction D", fontWeight = FontWeight.Bold)
                             Text(text = "Индекс: ${compareIndex.value}", fontWeight = FontWeight.Bold)
-                            Text(text = "Рассчетный диаметр: ${compareCalculatedDiameter.value} мм", fontWeight = FontWeight.Bold)
+                            Text(text = "Диаметр: ${compareCalculatedDiameter.value} мм", fontWeight = FontWeight.Bold)
                             Text(text = "Толщина центра ${compareThicknessCenter.value} мм",
                                 fontWeight = FontWeight.Bold,
                                 color =

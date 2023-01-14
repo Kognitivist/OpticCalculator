@@ -165,8 +165,9 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             .background(com.example.opticcalculator.ui.theme.BackgroundColor_1)
     ) {
         Column(modifier = Modifier
-            .fillMaxSize(1f)
-            .background(com.example.opticcalculator.ui.theme.BackgroundColor_1)) {
+            .fillMaxSize(1f).verticalScroll(rememberScrollState())
+            .background(com.example.opticcalculator.ui.theme.BackgroundColor_1),
+            verticalArrangement = Arrangement.SpaceBetween) {
             /**Рассчетные параметры заголовок*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
@@ -478,7 +479,6 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             /**Кнопка "результат"*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 10.dp)
                 .weight(weightButton),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically){
@@ -502,7 +502,6 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             /**Кнопка перехода на экран Canvas*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 10.dp)
                 .weight(weightIconButton),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically){
@@ -520,23 +519,22 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             /**Толщина по центру*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = 20.dp)
                 .weight(weightInfoText),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "Толщина по центру: ")
-                Text(text = thicknessCenter.value, fontSize = 20.sp)
+                Text(text = thicknessCenter.value)
             }
             /**Толщина по краю*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(bottom = 20.dp)
                 .weight(weightInfoText),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "Толщина по краю: ")
-                Text(text = thicknessEdge.value, fontSize = 20.sp)
+                Text(text = thicknessEdge.value)
             }
+            Spacer(modifier = Modifier.weight(1f))
         }
     }
     if (openDialog.value) {
