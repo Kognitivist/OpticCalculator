@@ -33,6 +33,7 @@ fun isNumber(mutableState: MutableState<String>){
         mutableState.value = "error"
     }
 }
+
 fun isErrorRefraction(value: String):Boolean{
     return try {
         value.isEmpty() || value.toDouble() < -15 || value.toDouble() > 15
@@ -83,5 +84,3 @@ fun isErrorDiameter(value1: String, value2:String):Boolean{
     }
 }
 
-fun convertPixelsToDp(context: Context, pixels: Float) =
-    pixels / context.resources.displayMetrics.density

@@ -4,8 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.*
 import kotlin.math.pow
 
@@ -14,6 +12,7 @@ class MainViewModel (application: Application): AndroidViewModel(application) {
 
     val indexList = mutableListOf("1.5", "1.53", "1.56", "1.59", "1.6",
         "1.61", "1.67", "1.7", "1.74", "1.76", "1.8", "1.9")
+
     val arguments: MutableLiveData<Map<String, MutableState<String>>> by lazy {
         MutableLiveData<Map<String, MutableState<String>>>()
     }

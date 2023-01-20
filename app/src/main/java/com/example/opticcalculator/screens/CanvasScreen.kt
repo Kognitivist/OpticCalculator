@@ -3,7 +3,6 @@ package com.example.opticcalculator.screens
 import android.annotation.SuppressLint
 import android.util.Log
 import android.util.TypedValue
-import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -126,8 +125,8 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
     /**Параметры для рассчета допустимости отрисовки сравнительной ОЛ*/
     val openDialog2 = remember { mutableStateOf(false) }
     val ax = acos(1-(((widthToPX/2)-(compareThicknessCenter.value.toFloat()*convertMMtoPX)-offset.value)/convertMMtoPX)/(compareSBC))
-    val horda = 2*(compareSBC)* sin(ax)
-    if (horda.isNaN() || horda < widthToPX/convertMMtoPX){
+    val chord = 2*(compareSBC)* sin(ax)
+    if (chord.isNaN() || chord < widthToPX/convertMMtoPX){
         if(checkedState.value){
             AlertDialog(
                 onDismissRequest = {
@@ -364,6 +363,5 @@ fun CanvasScreen(navController: NavHostController, viewModel: MainViewModel, lif
                 }
             }
         }
-        Log.d("horda","$horda")
     }
 }

@@ -73,6 +73,10 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
     val calculatedDiameter = remember{ mutableStateOf("") }
     val index = remember{ mutableStateOf("") }
     val basicCurved = remember{ mutableStateOf("") }
+    val diameter = remember{ mutableStateOf("") }
+    val thicknessCenter = remember{ mutableStateOf("") }
+    val thicknessEdge = remember{ mutableStateOf("") }
+
     /** Дефолтное значение БК*/
     if (isNumberBool(refraction) &&checkedStateBC.value && !isErrorRefraction(refraction.value)){
         when(refraction.value.toDouble()){
@@ -95,26 +99,49 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
         }
     }
 
-    val diameter = remember{ mutableStateOf("") }
-    val thicknessCenter = remember{ mutableStateOf("") }
-    val thicknessEdge = remember{ mutableStateOf("") }
-
     val argsForCalc = mapOf<String, MutableState<String>>(
         "refraction" to refraction, "index" to index,
         "basicCurved" to basicCurved,
         "nominalThickness" to nominalThickness,
         "diameter" to diameter, "calculatedDiameter" to calculatedDiameter,
         "thicknessCenter" to thicknessCenter, "thicknessEdge" to thicknessEdge)
-
+    /** активность кнопки логотипа */
     val enabledImage = remember { mutableStateOf(false) }
+    if(viewModel.arguments.value != null
+        && viewModel.arguments.value!!["thicknessCenter"]!!.value.isNotEmpty()
+        && !isErrorBasicCurved(basicCurved.value, refraction.value)
+        && !isErrorDiameter(diameter.value, calculatedDiameter.value)
+        && !isErrorIndex(index.value)
+        && !isErrorCalculatedDiameter(calculatedDiameter.value)
+        && !isErrorRefraction(refraction.value)
+        && !isErrorNominalThickness(nominalThickness.value)){
+        enabledImage.value = true
+    }
+    else{enabledImage.value = false}
 
-    val convertDPtoPX = TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_DIP, 1f,
-        context.resources.displayMetrics
-    )
+    if (openDialog.value) {
+        AlertDialog(
+            onDismissRequest = {
+                openDialog.value = false
+            },
+            title = { Text(text = "Внимание!") },
+            text = { Text("""При данных параметрах невозможно изготовить линзу в расчетном диаметре.
+                    |Линза не пройдет в оправу.
+                """.trimMargin()) },
+            buttons = {
+                Button(
+                    onClick = { openDialog.value = false },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = ButtonColor,
+                        contentColor = BackgroundColor_1),
+                    shape = RoundedCornerShape(20)
+                ) {
+                    Text("OK", fontSize = 22.sp)
+                }
+            }
+        )
+    }
 
-    val widthToDP = context.resources.displayMetrics.widthPixels*(1/convertDPtoPX)
-    val heightToDP = context.resources.displayMetrics.heightPixels*(1/convertDPtoPX)
+
 
     viewModel.arguments.observe(lifecycleOwner){
         if (viewModel.arguments.value != null){
@@ -543,37 +570,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             Spacer(modifier = Modifier.weight(1f))
         }
     }
-    if (openDialog.value) {
-        AlertDialog(
-            onDismissRequest = {
-                openDialog.value = false
-            },
-            title = { Text(text = "Внимание!") },
-            text = { Text("""При данных параметрах невозможно изготовить линзу в расчетном диаметре.
-                    |Линза не пройдет в оправу.
-                """.trimMargin()) },
-            buttons = {
-                Button(
-                    onClick = { openDialog.value = false },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = ButtonColor,
-                        contentColor = BackgroundColor_1),
-                    shape = RoundedCornerShape(20)
-                ) {
-                    Text("OK", fontSize = 22.sp)
-                }
-            }
-        )
-    }
-    if(viewModel.arguments.value != null
-        && viewModel.arguments.value!!["thicknessCenter"]!!.value.isNotEmpty()
-        && !isErrorBasicCurved(basicCurved.value, refraction.value)
-        && !isErrorDiameter(diameter.value, calculatedDiameter.value)
-        && !isErrorIndex(index.value)
-        && !isErrorCalculatedDiameter(calculatedDiameter.value)
-        && !isErrorRefraction(refraction.value)
-        && !isErrorNominalThickness(nominalThickness.value)){
-        enabledImage.value = true
-    }
-    else{enabledImage.value = false}
+
 }
+
 
