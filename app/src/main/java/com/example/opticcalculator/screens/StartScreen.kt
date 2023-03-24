@@ -6,6 +6,8 @@ import android.util.Log
 import android.util.TypedValue
 import android.widget.ImageButton
 import android.widget.Toast
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -64,7 +66,6 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
     val coroutineScope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
     val openDialog = remember { mutableStateOf(false) }
-
 
     val checkedStateBC = remember { mutableStateOf(false) }
     val checkedStateNT = remember { mutableStateOf(false) }
@@ -154,6 +155,15 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             thicknessCenter.value = viewModel.arguments.value!!["thicknessCenter"]!!.value
             thicknessEdge.value = viewModel.arguments.value!!["thicknessEdge"]!!.value
         }
+    }
+    val size = remember {
+        androidx.compose.animation.core.Animatable(0f)
+    }
+    LaunchedEffect(enabledImage.value){
+        size.animateTo(
+            targetValue = if (enabledImage.value) 0.3f else 0f,
+            animationSpec = tween(1000)
+        )
     }
 
     Scaffold(
@@ -530,10 +540,10 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
             /**Кнопка перехода на экран Canvas*/
             Row(modifier = Modifier
                 .fillMaxWidth(1f)
-                .weight(weightIconButton),
+                .weight(weightIconButton + size.value),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically){
-                Card(elevation = 5.dp,
+                Card(elevation = (size.value * 20).dp,
                     backgroundColor = BackgroundColor_1,
                     shape = RoundedCornerShape(100) ) {
                     Image(
