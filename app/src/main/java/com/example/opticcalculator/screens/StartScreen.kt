@@ -557,7 +557,6 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel, life
                             ) { navController.navigate(route = NavRoute.CanvasScreen.route) }
                     )
                 }
-
             }
             /**Толщина по центру*/
             Row(modifier = Modifier
